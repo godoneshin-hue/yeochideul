@@ -28,12 +28,12 @@ export function AddDiaryScreen() {
     <>
       <Header title="여드름 기록 추가" />
       <div className="p-5 space-y-4 animate-fade-in-up">
-        <Section title="📅 날짜">
+        <Section title="날짜">
           <input type="date" value={date} onChange={(e) => setDate(e.target.value)}
             className="w-full px-4 py-3 rounded-xl bg-secondary text-sm outline-none focus:ring-2 focus:ring-primary" />
         </Section>
 
-        <Section title="📸 피부 사진">
+        <Section title="피부 사진">
           <label className="block">
             <input type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => onFile(e.target.files?.[0] || null)} />
             {img ? (
@@ -47,17 +47,17 @@ export function AddDiaryScreen() {
           </label>
         </Section>
 
-        <Section title={`💯 피부 점수: ${score}점`}>
+        <Section title={`피부 점수: ${score}점`}>
           <input type="range" min={0} max={100} value={score} onChange={(e) => setScore(+e.target.value)}
             className="w-full accent-[var(--primary)]" />
         </Section>
 
-        <Section title="📝 짧은 메모">
+        <Section title="짧은 메모">
           <textarea value={desc} onChange={(e) => setDesc(e.target.value)} placeholder="오늘 피부 상태는?"
             rows={3} className="w-full px-4 py-3 rounded-xl bg-secondary text-sm outline-none focus:ring-2 focus:ring-primary resize-none" />
         </Section>
 
-        <Section title="🧴 사용한 제품">
+        <Section title="사용한 제품">
           <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="제품 검색..."
             className="w-full px-4 py-2.5 rounded-xl bg-secondary text-sm outline-none focus:ring-2 focus:ring-primary mb-2" />
           <div className="max-h-48 overflow-y-auto space-y-1 scrollbar-hide">

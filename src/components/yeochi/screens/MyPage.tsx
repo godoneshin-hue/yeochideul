@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useApp, fileToDataUrl, defaultUser } from "@/lib/yeochi-store";
-import { COLOR_PRESETS, SKIN_TYPES, EMOJI_PRESETS } from "@/lib/yeochi-data";
+import { COLOR_PRESETS, SKIN_TYPES } from "@/lib/yeochi-data";
 import { Header } from "@/components/yeochi/Header";
-import { LogOut, UserX, Upload } from "lucide-react";
+import { LogOut, UserX, Upload, User } from "lucide-react";
 
 export function MyPageScreen() {
   const { user, setUser, go } = useApp();
@@ -14,12 +14,11 @@ export function MyPageScreen() {
   const [weight, setWeight] = useState(user.weight);
   const [skinType, setSkinType] = useState(user.skinType);
   const [color, setColor] = useState(user.themeColor);
-  const [emoji, setEmoji] = useState(user.emoji || "🍊");
   const [saved, setSaved] = useState(false);
   const [confirmDel, setConfirmDel] = useState(false);
 
   const save = () => {
-    setUser((u) => ({ ...u, name, email, age, gender, height, weight, skinType, themeColor: color, emoji }));
+    setUser((u) => ({ ...u, name, email, age, gender, height, weight, skinType, themeColor: color }));
     setSaved(true);
     setTimeout(() => setSaved(false), 1500);
   };
@@ -40,7 +39,7 @@ export function MyPageScreen() {
         <div className="bg-card rounded-3xl p-5 shadow-card border border-border/50 flex flex-col items-center">
           <label className="relative cursor-pointer">
             <div className="w-24 h-24 rounded-full overflow-hidden gradient-warm flex items-center justify-center text-3xl text-white ring-4 ring-primary/20">
-              {user.profilePic ? <img src={user.profilePic} alt="me" className="w-full h-full object-cover" /> : "👤"}
+              {user.profilePic ? <img src={user.profilePic} alt="me" className="w-full h-full object-cover" /> : <User className="w-10 h-10" />}
             </div>
             <div className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-soft">
               <Upload className="w-4 h-4" />
@@ -51,7 +50,7 @@ export function MyPageScreen() {
           <div className="text-xs text-muted-foreground">{user.email}</div>
         </div>
 
-        <Section title="👤 개인 정보">
+        <Section title="개인 정보">
           <Row label="이름"><input value={name} onChange={(e) => setName(e.target.value)} className="input" /></Row>
           <Row label="이메일"><input value={email} onChange={(e) => setEmail(e.target.value)} className="input" /></Row>
           <Row label="나이"><input type="number" value={age} onChange={(e) => setAge(+e.target.value)} className="input" /></Row>
@@ -69,7 +68,7 @@ export function MyPageScreen() {
           </Row>
         </Section>
 
-        <Section title="🎨 테마 컬러">
+        <Section title="테마 컬러">
           <div className="flex gap-2 flex-wrap">
             {COLOR_PRESETS.map((c) => (
               <button key={c} onClick={() => setColor(c)} style={{ background: c }}
@@ -80,23 +79,9 @@ export function MyPageScreen() {
           </div>
         </Section>
 
-        <Section title="😊 대표 이모티콘">
-          <div className="flex gap-2 flex-wrap">
-            {EMOJI_PRESETS.map((e) => (
-              <button key={e} onClick={() => setEmoji(e)}
-                className={`w-11 h-11 rounded-2xl text-2xl flex items-center justify-center transition active:scale-90 ${emoji === e ? "bg-primary/15 ring-2 ring-primary" : "bg-secondary"}`}>
-                {e}
-              </button>
-            ))}
-            <input value={emoji} onChange={(e) => setEmoji(e.target.value.slice(0, 4))}
-              placeholder="직접 입력"
-              className="px-3 rounded-2xl bg-secondary text-sm w-28 outline-none focus:ring-2 focus:ring-primary" />
-          </div>
-        </Section>
-
         <button onClick={save}
           className="w-full py-3.5 rounded-2xl bg-primary text-primary-foreground font-bold shadow-soft active:scale-95 transition">
-          {saved ? "✓ 저장 완료!" : "변경사항 저장"}
+          {saved ? "저장 완료!" : "변경사항 저장"}
         </button>
 
         <div className="grid grid-cols-2 gap-2 pt-2">

@@ -31,16 +31,15 @@ export function HomeScreen() {
       >
         <div className="flex items-center gap-3 mb-4">
           <button onClick={() => go("mypage")} className="w-12 h-12 rounded-full bg-white/30 backdrop-blur overflow-hidden flex items-center justify-center text-xl ring-2 ring-white/50 active:scale-95 transition">
-            {user.profilePic ? <img src={user.profilePic} alt="profile" className="w-full h-full object-cover" /> : user.emoji || "👤"}
+            {user.profilePic ? <img src={user.profilePic} alt="profile" className="w-full h-full object-cover" /> : <User className="w-6 h-6 text-white" />}
           </button>
           <div className="flex-1">
             <div className="text-xs opacity-90">안녕하세요</div>
             <div className="font-bold text-lg leading-tight">{user.name}님</div>
           </div>
-          <div className="text-2xl">{user.emoji || "🍊"}</div>
         </div>
         <div className="bg-white/20 backdrop-blur rounded-2xl p-4">
-          <div className="text-xs opacity-90 mb-1">✨ 오늘의 진단</div>
+          <div className="text-xs opacity-90 mb-1">오늘의 진단</div>
           <div className="font-bold text-sm leading-snug">
             {user.name}님은 <b>{user.skinType}</b> 피부타입이라<br />
             <b>{user.concern}</b> 케어가 필요해보여요!
@@ -51,7 +50,7 @@ export function HomeScreen() {
       {/* Health brief */}
       <div className="px-5 -mt-4">
         <div className="bg-card rounded-2xl p-4 shadow-card border border-border/50 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center text-lg">🩺</div>
+          <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center text-lg" />
           <div className="flex-1">
             <div className="text-[11px] text-muted-foreground">오늘의 건강 브리핑</div>
             <div className="text-xs font-semibold">BMI {user.bmi ?? "—"} · 수면 {user.sleep} · {user.diet}</div>
@@ -61,7 +60,7 @@ export function HomeScreen() {
 
       {/* Habits */}
       <div className="px-5 mt-5">
-        <h3 className="text-sm font-bold mb-3 px-1">💧 오늘의 생활 습관 <span className="text-[10px] text-muted-foreground font-normal">· 달력에 자동 기록</span></h3>
+        <h3 className="text-sm font-bold mb-3 px-1">오늘의 생활 습관 <span className="text-[10px] text-muted-foreground font-normal">· 달력에 자동 기록</span></h3>
         <div className="grid grid-cols-2 gap-3">
           <button onClick={addWater} className="bg-card rounded-2xl p-4 shadow-card border border-border/50 active:scale-95 transition text-left">
             <Droplet className="w-5 h-5 text-sky-500 mb-2" />
@@ -96,7 +95,7 @@ export function HomeScreen() {
 
       {/* Patch analysis */}
       <div className="px-5 mt-6">
-        <h3 className="text-sm font-bold mb-3 px-1">🎯 여드름 패치 정밀 분석</h3>
+        <h3 className="text-sm font-bold mb-3 px-1">여드름 패치 정밀 분석</h3>
         <div className="relative bg-card rounded-3xl p-6 shadow-card border border-border/50 overflow-hidden">
           <div className="absolute inset-0 gradient-soft opacity-50" />
           <div className="relative flex flex-col items-center">

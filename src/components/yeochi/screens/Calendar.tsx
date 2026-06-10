@@ -73,7 +73,7 @@ export function CalendarScreen() {
 
         {sel && (
           <div className="mt-5 animate-fade-in-up">
-            <h3 className="font-bold text-sm mb-3 px-1">📅 {sel}</h3>
+            <h3 className="font-bold text-sm mb-3 px-1">{sel}</h3>
             {rec ? (
               <div className="bg-card rounded-2xl p-4 shadow-card border border-border/50 space-y-3">
                 {rec.img && <img src={rec.img} className="w-full aspect-video object-cover rounded-xl" alt="diary" />}
@@ -84,7 +84,7 @@ export function CalendarScreen() {
                 {rec.desc && <div className="text-xs bg-secondary/50 rounded-lg p-3">{rec.desc}</div>}
                 {rec.products.length > 0 && (
                   <div>
-                    <div className="text-[11px] text-muted-foreground mb-1.5">🧴 사용 제품</div>
+                    <div className="text-[11px] text-muted-foreground mb-1.5">사용 제품</div>
                     <div className="flex flex-wrap gap-1.5">
                       {rec.products.map((p) => (
                         <span key={p} className="text-[10px] px-2 py-1 rounded-full bg-primary/10 text-primary font-medium">{p}</span>
@@ -100,7 +100,7 @@ export function CalendarScreen() {
             )}
             {habit && (habit.water > 0 || habit.sleep > 0) && (
               <div className="mt-3 bg-card rounded-2xl p-4 shadow-card border border-border/50">
-                <div className="text-xs font-bold mb-2">💧 생활 습관 기록</div>
+                <div className="text-xs font-bold mb-2">생활 습관 기록</div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="flex items-center gap-2"><Droplet className="w-4 h-4 text-sky-500" /><span className="text-xs">물 {habit.water}잔</span></div>
                   <div className="flex items-center gap-2"><Moon className="w-4 h-4 text-indigo-500" /><span className="text-xs">수면 {habit.sleep}시간</span></div>

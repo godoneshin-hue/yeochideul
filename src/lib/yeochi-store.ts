@@ -71,7 +71,7 @@ export const defaultUser: User = {
   name: "",
   email: "",
   password: "",
-  emoji: "🍊",
+  emoji: "",
   themeColor: "#FF8C42",
   age: 25,
   gender: "여성",

@@ -22,7 +22,7 @@ export function ReportScreen() {
         </div>
 
         <div className="bg-card rounded-3xl p-5 shadow-card border border-border/50">
-          <h3 className="text-sm font-bold mb-4">📈 점수 트렌드</h3>
+          <h3 className="text-sm font-bold mb-4">점수 트렌드</h3>
           {entries.length === 0 ? (
             <p className="text-xs text-muted-foreground text-center py-6">기록을 추가하면 그래프가 표시돼요</p>
           ) : (
@@ -38,7 +38,7 @@ export function ReportScreen() {
         </div>
 
         <div className="bg-card rounded-3xl p-5 shadow-card border border-border/50">
-          <h3 className="text-sm font-bold mb-2">💡 AI 가이드</h3>
+          <h3 className="text-sm font-bold mb-2">AI 가이드</h3>
           <p className="text-xs text-muted-foreground leading-relaxed">
             <b className="text-foreground">{user.name}님</b>, 현재 <b>{user.skinType}</b> 피부에 <b>{user.concern}</b> 케어가 가장 시급합니다.
             평균 수면 <b>{user.sleep}</b>, 식단 <b>{user.diet}</b>을 유지하고 있어요.
@@ -47,7 +47,7 @@ export function ReportScreen() {
         </div>
 
         <div className="bg-card rounded-3xl p-5 shadow-card border border-border/50">
-          <h3 className="text-sm font-bold mb-3">🩺 신체 정보</h3>
+          <h3 className="text-sm font-bold mb-3">신체 정보</h3>
           <div className="grid grid-cols-2 gap-3">
             {[
               ["BMI", user.bmi ?? "—"],
