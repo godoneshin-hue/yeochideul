@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useApp, fileToDataUrl, defaultUser } from "@/lib/yeochi-store";
-import { COLOR_PRESETS, SKIN_TYPES, EMOJI_PRESETS } from "@/lib/yeochi-data";
+import { COLOR_PRESETS, SKIN_TYPES } from "@/lib/yeochi-data";
 import { Header } from "@/components/yeochi/Header";
-import { LogOut, UserX, Upload } from "lucide-react";
+import { LogOut, UserX, Upload, User } from "lucide-react";
 
 export function MyPageScreen() {
   const { user, setUser, go } = useApp();

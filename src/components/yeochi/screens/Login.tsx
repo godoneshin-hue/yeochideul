@@ -22,7 +22,6 @@ export function LoginScreen() {
   return (
     <div className="min-h-full flex flex-col px-7 py-12 animate-fade-in-up">
       <div className="text-center mt-8 mb-12">
-        <div className="text-6xl mb-3 animate-pop">🍊</div>
         <h1 className="text-3xl font-extrabold tracking-tight text-foreground">여치들</h1>
         <p className="text-sm text-muted-foreground mt-2">스마트한 여드름 분석 파트너</p>
       </div>

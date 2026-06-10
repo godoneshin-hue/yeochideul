@@ -13,11 +13,11 @@ const ACNE_TYPES = [
 ];
 
 const ROUTINES = [
-  "💧 물 8잔 이상 마시기",
-  "🧼 약산성 클렌징폼으로 미온수 세안",
-  "🌿 진정 토너로 결 정돈하기",
-  "✨ 보습 앰플/세럼 얇게 레이어링",
-  "🛌 11시 전 취침 · 베개커버 교체",
+  "물 8잔 이상 마시기",
+  "약산성 클렌징폼으로 미온수 세안",
+  "진정 토너로 결 정돈하기",
+  "보습 앰플/세럼 얇게 레이어링",
+  "11시 전 취침 · 베개커버 교체",
 ];
 
 export function AnalysisScreen() {
@@ -61,7 +61,7 @@ export function AnalysisScreen() {
       <Header title="AI 패치 분석" />
       <div className="p-5 animate-fade-in-up">
         <div className="bg-card rounded-2xl p-4 shadow-card border border-border/50 mb-4">
-          <div className="text-xs font-bold mb-2">📸 스캔 가이드</div>
+          <div className="text-xs font-bold mb-2">스캔 가이드</div>
           <ul className="text-[11px] text-muted-foreground space-y-1">
             <li>1. 밝은 곳에서 촬영해주세요</li>
             <li>2. 패치가 정중앙에 오도록 맞춰주세요</li>
@@ -123,7 +123,7 @@ export function AnalysisScreen() {
             </div>
 
             <div className="mt-4 bg-card rounded-3xl p-5 shadow-card border border-border/50 animate-fade-in-up">
-              <h3 className="font-bold text-sm mb-3">🛍️ 맞춤 제품 추천</h3>
+              <h3 className="font-bold text-sm mb-3">맞춤 제품 추천</h3>
               <div className="space-y-3">
                 {result.picks.map((p, i) => (
                   <div key={i} className="bg-secondary/40 rounded-2xl p-3">
@@ -133,8 +133,8 @@ export function AnalysisScreen() {
                       <span className="ml-auto text-[10px] flex items-center gap-0.5"><Star className="w-3 h-3 fill-amber-400 text-amber-400" />{p.product.score}</span>
                     </div>
                     <div className="font-bold text-xs mb-1">{p.product.name}</div>
-                    <div className="text-[11px] text-foreground/80 mb-2">💡 {p.reason}</div>
-                    <div className="text-[10px] text-muted-foreground">🍀 {p.product.ingredients}</div>
+                    <div className="text-[11px] text-foreground/80 mb-2">{p.reason}</div>
+                    <div className="text-[10px] text-muted-foreground">{p.product.ingredients}</div>
                   </div>
                 ))}
               </div>
@@ -144,7 +144,7 @@ export function AnalysisScreen() {
             </div>
 
             <div className="mt-4 bg-card rounded-3xl p-5 shadow-card border border-border/50 animate-fade-in-up">
-              <h3 className="font-bold text-sm mb-1">✅ 오늘의 케어 루틴</h3>
+              <h3 className="font-bold text-sm mb-1">오늘의 케어 루틴</h3>
               <p className="text-[11px] text-muted-foreground mb-3">{result.skinType} · {result.acne.type} 맞춤</p>
               <div className="space-y-2">
                 {ROUTINES.map((r, i) => (
