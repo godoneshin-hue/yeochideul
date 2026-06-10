@@ -25,16 +25,19 @@ export function HomeScreen() {
   return (
     <div className="pb-8 animate-fade-in-up">
       {/* Header */}
-      <div className="px-6 pt-8 pb-6 gradient-warm text-primary-foreground rounded-b-[40px] shadow-soft">
+      <div
+        className="px-6 pt-8 pb-6 text-primary-foreground rounded-b-[40px] shadow-soft"
+        style={{ background: `linear-gradient(135deg, ${user.themeColor}, ${user.themeColor}cc)` }}
+      >
         <div className="flex items-center gap-3 mb-4">
           <button onClick={() => go("mypage")} className="w-12 h-12 rounded-full bg-white/30 backdrop-blur overflow-hidden flex items-center justify-center text-xl ring-2 ring-white/50 active:scale-95 transition">
-            {user.profilePic ? <img src={user.profilePic} alt="profile" className="w-full h-full object-cover" /> : "👤"}
+            {user.profilePic ? <img src={user.profilePic} alt="profile" className="w-full h-full object-cover" /> : user.emoji || "👤"}
           </button>
           <div className="flex-1">
             <div className="text-xs opacity-90">안녕하세요</div>
             <div className="font-bold text-lg leading-tight">{user.name}님</div>
           </div>
-          <div className="text-2xl">🍊</div>
+          <div className="text-2xl">{user.emoji || "🍊"}</div>
         </div>
         <div className="bg-white/20 backdrop-blur rounded-2xl p-4">
           <div className="text-xs opacity-90 mb-1">✨ 오늘의 진단</div>
