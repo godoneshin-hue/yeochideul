@@ -1,17 +1,21 @@
 import { useState } from "react";
-import { useApp, defaultUser } from "@/lib/yeochi-store";
+import { useApp, defaultUser, loadAccounts } from "@/lib/yeochi-store";
 
 export function LoginScreen() {
-  const { user, setUser, go } = useApp();
-  const [name, setName] = useState("");
+  const { setUser, go } = useApp();
+  const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
   const [err, setErr] = useState("");
   const [findPw, setFindPw] = useState(false);
 
   const submit = () => {
-    if (!name || !pw) return setErr("이름과 비밀번호를 입력해주세요.");
-    setUser((u) => ({ ...u, name: u.name || name }));
-    if (user.surveyDone) go("home");
+    if (!email || !pw) return setErr("이메일과 비밀번호를 입력해주세요.");
+    const accounts = loadAccounts();
+    const acc = accounts[email.trim().toLowerCase()];
+    if (!acc) return setErr("가입된 계정이 없어요. 회원가입을 진행해주세요.");
+    if (acc.password !== pw) return setErr("비밀번호가 일치하지 않습니다.");
+    setUser(acc);
+    if (acc.surveyDone) go("home");
     else go("survey");
   };
 
@@ -25,9 +29,9 @@ export function LoginScreen() {
 
       <div className="space-y-3">
         <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="이름"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="이메일"
           className="w-full px-5 py-4 rounded-2xl bg-secondary border border-transparent focus:border-primary focus:outline-none transition text-sm"
         />
         <input
