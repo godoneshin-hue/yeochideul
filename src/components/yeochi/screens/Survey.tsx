@@ -36,7 +36,7 @@ export function SurveyScreen() {
           {Array.from({ length: 18 }).map((_, i) => (
             <div key={i} className="absolute animate-float-up text-3xl"
               style={{ left: `${Math.random() * 100}%`, bottom: 0, animationDelay: `${Math.random() * 0.4}s` }}>
-              {["🍊", "✨", "💖", "🌿"][i % 4]}
+              {""}
             </div>
           ))}
         </div>
@@ -45,14 +45,14 @@ export function SurveyScreen() {
       <h2 className="text-2xl font-extrabold mb-1">정밀 여드름 진단</h2>
       <p className="text-xs text-muted-foreground mb-6">맞춤 솔루션을 위해 알려주세요</p>
 
-      <Card title="📊 신체 데이터" onTap={pop}>
+      <Card title="신체 데이터" onTap={pop}>
         <Number label="나이" value={age} onChange={setAge} min={1} max={100} />
         <Choice label="성별" options={["여성", "남성", "기타"]} value={gender} onChange={setGender} />
         <Number label="키 (cm)" value={height} onChange={setHeight} min={100} max={220} />
         <Number label="몸무게 (kg)" value={weight} onChange={setWeight} min={30} max={150} />
       </Card>
 
-      <Card title="🌿 라이프스타일" onTap={pop}>
+      <Card title="라이프스타일" onTap={pop}>
         <Choice label="식단" options={SURVEY_DIET} value={diet} onChange={setDiet} small />
         <Choice label="평균 수면" options={SURVEY_SLEEP} value={sleep} onChange={setSleep} small />
         <Choice label="물 섭취량 (일)" options={WATER_INTAKE} value={water} onChange={setWater} small />
@@ -61,7 +61,7 @@ export function SurveyScreen() {
         <Choice label="메이크업 빈도" options={MAKEUP_FREQ} value={makeup} onChange={setMakeup} small />
       </Card>
 
-      <Card title="🔍 여드름 고민" onTap={pop}>
+      <Card title="여드름 고민" onTap={pop}>
         <Choice label="피부 타입" options={SKIN_TYPES} value={skinType} onChange={setSkinType} small />
         <Choice label="가장 큰 고민" options={ACNE_CONCERNS} value={concern} onChange={setConcern} small />
       </Card>
