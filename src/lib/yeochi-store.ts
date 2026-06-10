@@ -119,3 +119,15 @@ export const fileToDataUrl = (file: File): Promise<string> =>
     r.onerror = rej;
     r.readAsDataURL(file);
   });
+
+const ACC_KEY = "yeochi:accounts";
+export const loadAccounts = (): Record<string, User> => {
+  if (typeof window === "undefined") return {};
+  try { return JSON.parse(localStorage.getItem(ACC_KEY) || "{}"); } catch { return {}; }
+};
+export const saveAccount = (u: User) => {
+  if (typeof window === "undefined" || !u.email) return;
+  const all = loadAccounts();
+  all[u.email.trim().toLowerCase()] = u;
+  try { localStorage.setItem(ACC_KEY, JSON.stringify(all)); } catch {}
+};

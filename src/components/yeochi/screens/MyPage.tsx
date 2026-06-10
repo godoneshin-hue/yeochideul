@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useApp, fileToDataUrl, defaultUser } from "@/lib/yeochi-store";
-import { COLOR_PRESETS, SKIN_TYPES } from "@/lib/yeochi-data";
+import { COLOR_PRESETS, SKIN_TYPES, EMOJI_PRESETS } from "@/lib/yeochi-data";
 import { Header } from "@/components/yeochi/Header";
 import { LogOut, UserX, Upload } from "lucide-react";
 
@@ -14,11 +14,12 @@ export function MyPageScreen() {
   const [weight, setWeight] = useState(user.weight);
   const [skinType, setSkinType] = useState(user.skinType);
   const [color, setColor] = useState(user.themeColor);
+  const [emoji, setEmoji] = useState(user.emoji || "🍊");
   const [saved, setSaved] = useState(false);
   const [confirmDel, setConfirmDel] = useState(false);
 
   const save = () => {
-    setUser((u) => ({ ...u, name, email, age, gender, height, weight, skinType, themeColor: color }));
+    setUser((u) => ({ ...u, name, email, age, gender, height, weight, skinType, themeColor: color, emoji }));
     setSaved(true);
     setTimeout(() => setSaved(false), 1500);
   };
@@ -76,6 +77,20 @@ export function MyPageScreen() {
             ))}
             <input type="color" value={color} onChange={(e) => setColor(e.target.value)}
               className="w-10 h-10 rounded-2xl cursor-pointer" />
+          </div>
+        </Section>
+
+        <Section title="😊 대표 이모티콘">
+          <div className="flex gap-2 flex-wrap">
+            {EMOJI_PRESETS.map((e) => (
+              <button key={e} onClick={() => setEmoji(e)}
+                className={`w-11 h-11 rounded-2xl text-2xl flex items-center justify-center transition active:scale-90 ${emoji === e ? "bg-primary/15 ring-2 ring-primary" : "bg-secondary"}`}>
+                {e}
+              </button>
+            ))}
+            <input value={emoji} onChange={(e) => setEmoji(e.target.value.slice(0, 4))}
+              placeholder="직접 입력"
+              className="px-3 rounded-2xl bg-secondary text-sm w-28 outline-none focus:ring-2 focus:ring-primary" />
           </div>
         </Section>
 
