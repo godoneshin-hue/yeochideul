@@ -52,7 +52,7 @@ export const PRODUCT_LIST: string[] = Object.values(PRODUCT_DB).flatMap((arr) =>
   arr.map((p) => `${p.brand} ${p.name}`),
 );
 
-export const EMOJI_PRESETS = ["🍊", "🌸", "🌿", "✨", "🍑"];
+export const EMOJI_PRESETS = ["O", "X", "V", "*", "+"];
 export const COLOR_PRESETS = ["#FF8C42", "#FF6B9D", "#7BC47F", "#5BA3D9", "#B57BFF"];
 
 export const SURVEY_DIET = ["한식 위주", "육류 위주", "채식 위주", "배달/패스트푸드", "불규칙함"];

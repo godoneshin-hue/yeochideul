@@ -67,7 +67,7 @@ function ProductCard({ p, open, toggle }: { p: Product; open: boolean; toggle: (
             <div className="text-xs">{p.effect}</div>
           </div>
           <div>
-            <div className="text-[10px] text-muted-foreground mb-1.5 px-1">💬 리뷰</div>
+            <div className="text-[10px] text-muted-foreground mb-1.5 px-1">리뷰</div>
             <div className="space-y-1.5">
               {p.reviews.map((r, i) => (
                 <div key={i} className="text-xs bg-accent/40 rounded-lg px-3 py-2">"{r}"</div>

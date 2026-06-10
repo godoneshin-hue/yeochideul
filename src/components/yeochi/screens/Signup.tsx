@@ -8,7 +8,6 @@ export function SignupScreen() {
   const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
   const [pw2, setPw2] = useState("");
-  const [pw2, setPw2] = useState("");
   const [color, setColor] = useState(COLOR_PRESETS[0]);
   const [customColor, setCustomColor] = useState("");
   const [err, setErr] = useState("");
