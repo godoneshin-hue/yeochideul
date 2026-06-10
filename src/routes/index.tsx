@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { AppCtx, defaultUser, Screen, User } from "@/lib/yeochi-store";
+import { AppCtx, defaultUser, Screen, User, saveAccount } from "@/lib/yeochi-store";
 import { PhoneFrame } from "@/components/yeochi/PhoneFrame";
 import { LoginScreen } from "@/components/yeochi/screens/Login";
 import { SignupScreen } from "@/components/yeochi/screens/Signup";
@@ -44,6 +44,7 @@ function Index() {
 
   useEffect(() => {
     try { localStorage.setItem("yeochi:user", JSON.stringify(user)); } catch {}
+    if (user.email) saveAccount(user);
   }, [user]);
 
   useEffect(() => {
