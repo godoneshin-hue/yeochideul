@@ -1,10 +1,19 @@
 import "./lib/error-capture";
 
+import { fileURLToPath } from "node:url";
+
+import { serve } from "srvx";
+import { serveStatic } from "srvx/static";
+
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
 
+// This file is bundled to dist/server/server.js; the client build lives
+// alongside it at dist/client, regardless of the process's cwd.
+const clientDir = fileURLToPath(new URL("../client", import.meta.url));
+
 type ServerEntry = {
-  fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
+  fetch: (request: Request) => Promise<Response> | Response;
 };
 
 let serverEntryPromise: Promise<ServerEntry> | undefined;
@@ -12,7 +21,7 @@ let serverEntryPromise: Promise<ServerEntry> | undefined;
 async function getServerEntry(): Promise<ServerEntry> {
   if (!serverEntryPromise) {
     serverEntryPromise = import("@tanstack/react-start/server-entry").then(
-      (m) => ((m as { default?: ServerEntry }).default ?? (m as unknown as ServerEntry)),
+      (m) => (m as { default?: ServerEntry }).default ?? (m as unknown as ServerEntry),
     );
   }
   return serverEntryPromise;
@@ -66,15 +75,21 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
   return brandedErrorResponse();
 }
 
-export default {
-  async fetch(request: Request, env: unknown, ctx: unknown) {
-    try {
-      const handler = await getServerEntry();
-      const response = await handler.fetch(request, env, ctx);
-      return await normalizeCatastrophicSsrResponse(response);
-    } catch (error) {
-      console.error(error);
-      return brandedErrorResponse();
-    }
-  },
-};
+async function fetch(request: Request): Promise<Response> {
+  try {
+    const handler = await getServerEntry();
+    const response = await handler.fetch(request);
+    return await normalizeCatastrophicSsrResponse(response);
+  } catch (error) {
+    console.error(error);
+    return brandedErrorResponse();
+  }
+}
+
+// Render (and most Node hosts) provide the listen port via the PORT env var,
+// which srvx's Node adapter reads by default.
+serve({
+  fetch,
+  hostname: "0.0.0.0",
+  middleware: [serveStatic({ dir: clientDir })],
+});

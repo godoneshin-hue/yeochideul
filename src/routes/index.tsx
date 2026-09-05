@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { AppCtx, defaultUser, Screen, User, saveAccount } from "@/lib/yeochi-store";
+import { AppCtx, defaultUser, fetchCurrentUser, Screen, User } from "@/lib/yeochi-store";
 import { PhoneFrame } from "@/components/yeochi/PhoneFrame";
 import { LoginScreen } from "@/components/yeochi/screens/Login";
 import { SignupScreen } from "@/components/yeochi/screens/Signup";
@@ -25,40 +25,54 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  const [user, setUser] = useState<User>(() => {
-    if (typeof window === "undefined") return defaultUser;
-    try {
-      const raw = localStorage.getItem("yeochi:user");
-      return raw ? { ...defaultUser, ...JSON.parse(raw) } : defaultUser;
-    } catch { return defaultUser; }
-  });
-  const [screen, setScreen] = useState<Screen>(() => {
-    if (typeof window === "undefined") return "login";
-    try {
-      const raw = localStorage.getItem("yeochi:user");
-      const u = raw ? JSON.parse(raw) : null;
-      return u?.surveyDone ? "home" : "login";
-    } catch { return "login"; }
-  });
+  const [user, setUser] = useState<User>(defaultUser);
+  const [screen, setScreen] = useState<Screen>("login");
   const [history, setHistory] = useState<Screen[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    try { localStorage.setItem("yeochi:user", JSON.stringify(user)); } catch {}
-    if (user.email) saveAccount(user);
-  }, [user]);
+    let cancelled = false;
+    fetchCurrentUser()
+      .then((u) => {
+        if (cancelled) return;
+        if (u) {
+          setUser(u);
+          setScreen(u.surveyDone ? "home" : "survey");
+        }
+      })
+      .catch((err) => console.error("Failed to load session", err))
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     document.documentElement.style.setProperty("--primary", oklchFromHex(user.themeColor));
     document.documentElement.style.setProperty("--ring", oklchFromHex(user.themeColor));
   }, [user.themeColor]);
 
-  const ctx = useMemo(() => ({
-    user,
-    setUser,
-    screen,
-    go: (s: Screen) => { setHistory((h) => [...h, screen]); setScreen(s); },
-    back: () => setHistory((h) => { const n = [...h]; const prev = n.pop(); if (prev) setScreen(prev); return n; }),
-  }), [user, screen]);
+  const ctx = useMemo(
+    () => ({
+      user,
+      setUser,
+      screen,
+      go: (s: Screen) => {
+        setHistory((h) => [...h, screen]);
+        setScreen(s);
+      },
+      back: () =>
+        setHistory((h) => {
+          const n = [...h];
+          const prev = n.pop();
+          if (prev) setScreen(prev);
+          return n;
+        }),
+    }),
+    [user, screen],
+  );
 
   const Screens: Record<Screen, React.FC> = {
     login: LoginScreen,
@@ -78,9 +92,15 @@ function Index() {
   return (
     <AppCtx.Provider value={ctx}>
       <PhoneFrame>
-        <div key={screen} className="animate-fade-in-up">
-          <Current />
-        </div>
+        {loading ? (
+          <div className="min-h-full flex items-center justify-center">
+            <div className="w-8 h-8 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
+          </div>
+        ) : (
+          <div key={screen} className="animate-fade-in-up">
+            <Current />
+          </div>
+        )}
       </PhoneFrame>
     </AppCtx.Provider>
   );
