@@ -1,6 +1,6 @@
 import "./lib/error-capture";
 
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { serve } from "srvx";
 import { serveStatic } from "srvx/static";
@@ -86,10 +86,21 @@ async function fetch(request: Request): Promise<Response> {
   }
 }
 
-// Render (and most Node hosts) provide the listen port via the PORT env var,
-// which srvx's Node adapter reads by default.
-serve({
-  fetch,
-  hostname: "0.0.0.0",
-  middleware: [serveStatic({ dir: clientDir })],
-});
+// TanStack Start's own preview/prerender tooling imports this module and
+// calls the default export's `fetch` directly (in-process) — it does not
+// rely on a listening server, so this export must exist independent of the
+// serve() call below.
+export default { fetch };
+
+// Only start listening when this file is actually run as the server process
+// (e.g. `node dist/server/server.js`), not when it's merely imported by
+// Vite's own preview/prerender tooling.
+if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
+  // Render (and most Node hosts) provide the listen port via the PORT env
+  // var, which srvx's Node adapter reads by default.
+  serve({
+    fetch,
+    hostname: "0.0.0.0",
+    middleware: [serveStatic({ dir: clientDir })],
+  });
+}

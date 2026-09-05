@@ -8,7 +8,7 @@
 - [TanStack Start](https://tanstack.com/start) (React 19 + Vite 7, SSR)
 - [Supabase](https://supabase.com) — 인증(Auth), 데이터베이스(Postgres + RLS), 파일 저장(Storage)
 - Tailwind CSS 4, Radix UI
-- 배포: [Render](https://render.com) (Node 웹 서비스)
+- 배포: [Vercel](https://vercel.com) (정적 자산 + Node.js Function으로 SSR 처리)
 
 ## 로컬 개발
 
@@ -39,14 +39,26 @@ Row Level Security가 적용되어 있어 각 사용자는 자신의 데이터�
 > 이용할 수 있게 하려면 Supabase 대시보드 → Authentication → Providers → Email에서
 > "Confirm email"을 꺼주세요.
 
-## Render 배포
+## Vercel 배포
 
-이 저장소에는 `render.yaml`이 포함되어 있습니다. Render에서 "New +" → "Blueprint"로 이
-저장소를 연결하면 빌드/시작 명령이 자동으로 구성됩니다.
+이 저장소에는 `vercel.json`과 `api/ssr.js`가 포함되어 있습니다.
 
-- Build: `npm install && npm run build`
-- Start: `node dist/server/server.js`
-- 환경 변수: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`를 Render 대시보드에서 직접 입력
+- `npm run build`가 정적 자산(`dist/client`)과 SSR 서버 번들(`dist/server`)을 함께 빌드합니다.
+- `api/ssr.js`는 빌드된 `dist/server/server.js`의 Fetch 핸들러를 그대로 재노출하는 Vercel
+  Node.js Function 진입점입니다 (TanStack Start에 공식 Vercel 어댑터가 아직 없어서 직접
+  연결했습니다).
+- `vercel.json`의 rewrite 규칙이 정적 자산(`/assets/*`)을 제외한 모든 요청을 이 함수로
+  보내 페이지별로 서버 렌더링을 수행합니다.
+
+Vercel 대시보드에서 "Add New" → "Project" → 이 GitHub 저장소를 선택하면 위 설정을 그대로
+읽어 빌드합니다. 배포 전에 프로젝트 환경 변수에 아래 값을 입력해주세요.
+
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
+
+> Vite는 `VITE_*` 값을 **빌드 시점에** 번들에 새겨 넣기 때문에, 두 값은 런타임이 아니라
+> 빌드 환경 변수로 등록되어 있어야 합니다. Vercel 프로젝트 환경 변수는 기본적으로 빌드와
+> 런타임 모두에 적용되므로 별도 설정 없이 그대로 두면 됩니다.
 
 ## 빌드
 
