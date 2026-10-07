@@ -1,21 +1,30 @@
-import { ChevronLeft, Home } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { useApp } from "@/lib/yeochi-store";
 
-export function Header({ title, showBack = true, showHome = true }: { title: string; showBack?: boolean; showHome?: boolean }) {
+export function Header({
+  title,
+  showBack = true,
+}: {
+  title: string;
+  showBack?: boolean;
+  showHome?: boolean;
+}) {
   const { go } = useApp();
   return (
-    <div className="sticky top-0 z-40 backdrop-blur-xl bg-background/80 border-b border-border/50 px-4 py-3 flex items-center justify-between">
+    <div className="sticky top-0 z-40 bg-background h-14 px-2 flex items-center">
       {showBack ? (
-        <button onClick={() => go("home")} className="p-2 -ml-2 rounded-full hover:bg-accent active:scale-90 transition">
-          <ChevronLeft className="w-5 h-5" />
+        <button
+          onClick={() => go("home")}
+          aria-label="홈으로"
+          className="w-10 h-10 flex items-center justify-center rounded-full active:bg-surface transition"
+        >
+          <ChevronLeft className="w-6 h-6" strokeWidth={1.75} />
         </button>
-      ) : <div className="w-9" />}
-      <h1 className="font-semibold text-base">{title}</h1>
-      {showHome ? (
-        <button onClick={() => go("home")} className="p-2 -mr-2 rounded-full hover:bg-accent active:scale-90 transition">
-          <Home className="w-5 h-5" />
-        </button>
-      ) : <div className="w-9" />}
+      ) : (
+        <div className="w-10" />
+      )}
+      <h1 className="flex-1 text-center text-[16px] font-semibold tracking-[-0.02em]">{title}</h1>
+      <div className="w-10" />
     </div>
   );
 }

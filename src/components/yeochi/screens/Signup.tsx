@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useApp, fetchCurrentUser, signUpUser } from "@/lib/yeochi-store";
 import { COLOR_PRESETS } from "@/lib/yeochi-data";
+import { PrimaryButton, FieldLabel, inputClass } from "@/components/yeochi/ui";
+import { ChevronLeft } from "lucide-react";
 
 export function SignupScreen() {
   const { setUser, go } = useApp();
@@ -38,74 +40,78 @@ export function SignupScreen() {
   };
 
   return (
-    <div className="min-h-full px-6 py-6 animate-fade-in-up">
-      <button
-        onClick={() => go("login")}
-        className="text-xs text-muted-foreground mb-4 hover:text-primary"
-      >
-        ← 로그인으로
-      </button>
-      <h2 className="text-2xl font-extrabold mb-1">환영해요!</h2>
-      <p className="text-xs text-muted-foreground mb-6">여치들과 함께 시작해요</p>
+    <div className="min-h-full px-6 pb-10 animate-fade-in-up">
+      <div className="h-14 -mx-4 flex items-center">
+        <button
+          onClick={() => go("login")}
+          aria-label="로그인으로"
+          className="w-10 h-10 flex items-center justify-center rounded-full active:bg-surface"
+        >
+          <ChevronLeft className="w-6 h-6" strokeWidth={1.75} />
+        </button>
+      </div>
+      <h2 className="text-[24px] font-bold tracking-[-0.035em] mt-2">계정 만들기</h2>
+      <p className="text-[15px] text-muted-foreground mt-1.5 mb-8">
+        몇 가지만 입력하면 바로 시작할 수 있어요
+      </p>
 
-      <div className="space-y-3">
-        <Field label="이름 *" value={name} onChange={setName} placeholder="실명" />
-        <Field label="이메일 *" value={email} onChange={setEmail} placeholder="example@mail.com" />
+      <div className="space-y-5">
+        <Field label="이름" value={name} onChange={setName} placeholder="이름" />
         <Field
-          label="비밀번호 *"
+          label="이메일"
+          value={email}
+          onChange={setEmail}
+          placeholder="example@mail.com"
+          type="email"
+        />
+        <Field
+          label="비밀번호"
           value={pw}
           onChange={setPw}
           placeholder="8자 이상"
           type="password"
         />
         <Field
-          label="비밀번호 재확인 *"
+          label="비밀번호 확인"
           value={pw2}
           onChange={setPw2}
-          placeholder="다시 입력"
+          placeholder="한 번 더 입력"
           type="password"
         />
 
         <div>
-          <label className="text-xs font-semibold text-muted-foreground px-1">테마 컬러</label>
-          <div className="flex gap-2 mt-2 flex-wrap">
-            {COLOR_PRESETS.map((c) => (
-              <button
-                key={c}
-                onClick={() => {
-                  setColor(c);
-                  setCustomColor("");
-                }}
-                style={{ background: c }}
-                className={`w-12 h-12 rounded-2xl transition active:scale-90 ${color === c && !customColor ? "ring-4 ring-offset-2 ring-foreground/30 scale-110" : ""}`}
-              />
-            ))}
+          <FieldLabel>테마 컬러</FieldLabel>
+          <div className="flex gap-3 mt-1">
+            {COLOR_PRESETS.map((c) => {
+              const active = color === c && !customColor;
+              return (
+                <button
+                  key={c}
+                  onClick={() => {
+                    setColor(c);
+                    setCustomColor("");
+                  }}
+                  aria-label={`테마 컬러 ${c}`}
+                  style={{ background: c }}
+                  className={`w-10 h-10 rounded-full transition active:scale-90 ${active ? "ring-2 ring-offset-2 ring-offset-background ring-foreground" : ""}`}
+                />
+              );
+            })}
           </div>
           <input
             value={customColor}
             onChange={(e) => setCustomColor(e.target.value)}
-            placeholder="#FF8C42 (직접 입력)"
-            className="mt-2 w-full px-4 py-3 rounded-xl bg-secondary text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            placeholder="직접 입력 (예: #FF8C42)"
+            className={`${inputClass} mt-3`}
           />
-          <div className="mt-2 flex items-center gap-2 text-xs">
-            <span>현재 컬러:</span>
-            <span
-              className="w-6 h-6 rounded-full border border-border"
-              style={{ background: /^#[0-9a-fA-F]{6}$/.test(customColor) ? customColor : color }}
-            />
-          </div>
         </div>
 
-        {err && <p className="text-xs text-destructive">{err}</p>}
-        {info && <p className="text-xs text-primary">{info}</p>}
+        {err && <p className="text-[13px] text-destructive px-1">{err}</p>}
+        {info && <p className="text-[13px] text-primary px-1">{info}</p>}
 
-        <button
-          onClick={submit}
-          disabled={loading}
-          className="w-full py-4 mt-4 rounded-2xl bg-primary text-primary-foreground font-bold shadow-soft active:scale-95 transition disabled:opacity-60"
-        >
+        <PrimaryButton onClick={submit} disabled={loading} className="!mt-8">
           {loading ? "가입 중..." : "가입하고 피부 진단 시작"}
-        </button>
+        </PrimaryButton>
       </div>
     </div>
   );
@@ -126,13 +132,13 @@ function Field({
 }) {
   return (
     <div>
-      <label className="text-xs font-semibold text-muted-foreground px-1">{label}</label>
+      <FieldLabel>{label}</FieldLabel>
       <input
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="mt-1.5 w-full px-4 py-3 rounded-xl bg-secondary text-sm focus:outline-none focus:ring-2 focus:ring-primary transition"
+        className={inputClass}
       />
     </div>
   );

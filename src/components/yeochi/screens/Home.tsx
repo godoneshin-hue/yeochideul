@@ -1,7 +1,6 @@
 import { useApp, todayStr, upsertHabit } from "@/lib/yeochi-store";
+import { Card, SectionTitle } from "@/components/yeochi/ui";
 import {
-  Camera,
-  Sparkles,
   Calendar,
   BarChart3,
   ShoppingBag,
@@ -10,7 +9,13 @@ import {
   Droplet,
   Moon,
   Plus,
+  Minus,
+  ChevronRight,
+  PenLine,
+  ScanLine,
 } from "lucide-react";
+
+const WATER_GOAL = 8;
 
 export function HomeScreen() {
   const { user, setUser, go } = useApp();
@@ -23,189 +28,187 @@ export function HomeScreen() {
     upsertHabit(user.id, today, { water }).catch((e) => console.error(e));
   };
   const setSleep = (v: number) => {
-    setUser((u) => ({ ...u, habits: { ...u.habits, [today]: { ...habit, sleep: v } } }));
-    upsertHabit(user.id, today, { sleep: v }).catch((e) => console.error(e));
+    const sleep = Math.max(0, Math.min(24, v));
+    setUser((u) => ({ ...u, habits: { ...u.habits, [today]: { ...habit, sleep } } }));
+    upsertHabit(user.id, today, { sleep }).catch((e) => console.error(e));
   };
 
-  const features = [
-    {
-      icon: Camera,
-      label: "패치 분석",
-      color: "from-orange-400 to-pink-400",
-      to: "analysis" as const,
-    },
+  const menu = [
     {
       icon: ShoppingBag,
-      label: "제품추천",
-      color: "from-amber-400 to-orange-500",
+      label: "제품 추천",
+      desc: "피부 타입 맞춤 제품",
       to: "recommendation" as const,
     },
-    {
-      icon: Calendar,
-      label: "여드름 달력",
-      color: "from-rose-400 to-orange-400",
-      to: "calendar" as const,
-    },
-    {
-      icon: BarChart3,
-      label: "분석 리포트",
-      color: "from-yellow-400 to-orange-400",
-      to: "report" as const,
-    },
-    {
-      icon: Package,
-      label: "화장품 관리함",
-      color: "from-pink-400 to-rose-400",
-      to: "expiry" as const,
-    },
-    {
-      icon: User,
-      label: "마이페이지",
-      color: "from-orange-500 to-amber-500",
-      to: "mypage" as const,
-    },
+    { icon: Calendar, label: "여드름 달력", desc: "날짜별 기록 모아보기", to: "calendar" as const },
+    { icon: BarChart3, label: "분석 리포트", desc: "점수 변화와 가이드", to: "report" as const },
+    { icon: Package, label: "화장품 관리함", desc: "개봉일 · 유통기한", to: "expiry" as const },
   ];
 
+  const dateLabel = new Date().toLocaleDateString("ko-KR", {
+    month: "long",
+    day: "numeric",
+    weekday: "short",
+  });
+
   return (
-    <div className="pb-8 animate-fade-in-up">
-      {/* Header */}
-      <div
-        className="px-6 pt-8 pb-6 text-primary-foreground rounded-b-[40px] shadow-soft"
-        style={{ background: `linear-gradient(135deg, ${user.themeColor}, ${user.themeColor}cc)` }}
-      >
-        <div className="flex items-center gap-3 mb-4">
-          <button
-            onClick={() => go("mypage")}
-            className="w-12 h-12 rounded-full bg-white/30 backdrop-blur overflow-hidden flex items-center justify-center text-xl ring-2 ring-white/50 active:scale-95 transition"
-          >
-            {user.profilePic ? (
-              <img src={user.profilePic} alt="profile" className="w-full h-full object-cover" />
-            ) : (
-              <User className="w-6 h-6 text-white" />
-            )}
-          </button>
-          <div className="flex-1">
-            <div className="text-xs opacity-90">안녕하세요</div>
-            <div className="font-bold text-lg leading-tight">{user.name}님</div>
-          </div>
-        </div>
-        <div className="bg-white/20 backdrop-blur rounded-2xl p-4">
-          <div className="text-xs opacity-90 mb-1">오늘의 진단</div>
-          <div className="font-bold text-sm leading-snug">
-            {user.name}님은 <b>{user.skinType}</b> 피부타입이라
-            <br />
-            <b>{user.concern}</b> 케어가 필요해보여요!
-          </div>
-        </div>
-      </div>
-
-      {/* Health brief */}
-      <div className="px-5 -mt-4">
-        <div className="bg-card rounded-2xl p-4 shadow-card border border-border/50 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center text-lg" />
-          <div className="flex-1">
-            <div className="text-[11px] text-muted-foreground">오늘의 건강 브리핑</div>
-            <div className="text-xs font-semibold">
-              BMI {user.bmi ?? "—"} · 수면 {user.sleep} · {user.diet}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Habits */}
-      <div className="px-5 mt-5">
-        <h3 className="text-sm font-bold mb-3 px-1">
-          오늘의 생활 습관{" "}
-          <span className="text-[10px] text-muted-foreground font-normal">· 달력에 자동 기록</span>
-        </h3>
-        <div className="grid grid-cols-2 gap-3">
-          <button
-            onClick={addWater}
-            className="bg-card rounded-2xl p-4 shadow-card border border-border/50 active:scale-95 transition text-left"
-          >
-            <Droplet className="w-5 h-5 text-sky-500 mb-2" />
-            <div className="text-[11px] text-muted-foreground">물 마시기</div>
-            <div className="font-bold text-xl">
-              {habit.water} <span className="text-xs font-normal text-muted-foreground">잔</span>
-            </div>
-            <div className="text-[10px] text-primary mt-1 flex items-center gap-1">
-              <Plus className="w-3 h-3" /> 한 잔 추가
-            </div>
-          </button>
-          <div className="bg-card rounded-2xl p-4 shadow-card border border-border/50">
-            <Moon className="w-5 h-5 text-indigo-500 mb-2" />
-            <div className="text-[11px] text-muted-foreground">수면 시간</div>
-            <input
-              type="number"
-              min={0}
-              max={24}
-              value={habit.sleep}
-              onChange={(e) => setSleep(+e.target.value)}
-              className="font-bold text-xl bg-transparent w-full outline-none"
-            />
-            <div className="text-[10px] text-muted-foreground">시간</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Diary CTA */}
-      <div className="px-5 mt-5">
+    <div className="pb-10 animate-fade-in-up">
+      {/* Top bar */}
+      <div className="h-14 px-5 flex items-center justify-between">
+        <span className="text-[19px] font-extrabold tracking-[-0.04em]">여치들</span>
         <button
-          onClick={() => go("addDiary")}
-          className="w-full bg-card rounded-2xl p-4 shadow-card border-2 border-dashed border-primary/40 flex items-center gap-3 active:scale-98 transition hover:bg-primary/5"
+          onClick={() => go("mypage")}
+          aria-label="마이페이지"
+          className="w-9 h-9 rounded-full bg-surface overflow-hidden flex items-center justify-center active:scale-95 transition"
         >
-          <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
-            <Plus className="w-5 h-5" />
+          {user.profilePic ? (
+            <img src={user.profilePic} alt="" className="w-full h-full object-cover" />
+          ) : (
+            <User className="w-[18px] h-[18px] text-muted-foreground" strokeWidth={1.75} />
+          )}
+        </button>
+      </div>
+
+      {/* Greeting */}
+      <div className="px-6 pt-3 pb-6">
+        <div className="text-[13px] text-muted-foreground">{dateLabel}</div>
+        <h1 className="text-[24px] leading-[1.35] font-bold tracking-[-0.035em] mt-1.5">
+          {user.name}님, 오늘은
+          <br />
+          <span className="text-primary">{user.concern}</span> 케어에
+          <br />
+          집중해볼까요?
+        </h1>
+        <div className="flex gap-1.5 mt-4">
+          <Tag>{user.skinType} 피부</Tag>
+          <Tag>수면 {user.sleep}</Tag>
+          <Tag>BMI {user.bmi ?? "—"}</Tag>
+        </div>
+      </div>
+
+      {/* Patch analysis — the one primary action on this screen */}
+      <div className="px-5">
+        <button
+          onClick={() => go("analysis")}
+          className="w-full text-left rounded-[22px] bg-primary text-primary-foreground p-5 relative overflow-hidden active:scale-[0.99] transition"
+        >
+          <div className="absolute -right-8 -bottom-10 w-40 h-40 rounded-full border border-white/25" />
+          <div className="absolute -right-2 -bottom-4 w-24 h-24 rounded-full border border-white/25" />
+          <ScanLine className="w-6 h-6 mb-6" strokeWidth={1.75} />
+          <div className="text-[18px] font-semibold tracking-[-0.02em]">패치 정밀 분석</div>
+          <div className="text-[14px] opacity-85 mt-1">
+            패치 부위를 찍으면 피부 상태를 알려드려요
           </div>
-          <div className="text-left flex-1">
-            <div className="font-bold text-sm">내 여드름 기록하기</div>
-            <div className="text-[11px] text-muted-foreground">사진 · 사용 제품 · 메모 남기기</div>
+          <div className="mt-5 inline-flex items-center gap-1 h-9 px-4 rounded-full bg-white/95 text-foreground text-[14px] font-semibold">
+            분석 시작 <ChevronRight className="w-4 h-4" />
           </div>
         </button>
       </div>
 
-      {/* Patch analysis */}
-      <div className="px-5 mt-6">
-        <h3 className="text-sm font-bold mb-3 px-1">여드름 패치 정밀 분석</h3>
-        <div className="relative bg-card rounded-3xl p-6 shadow-card border border-border/50 overflow-hidden">
-          <div className="absolute inset-0 gradient-soft opacity-50" />
-          <div className="relative flex flex-col items-center">
-            <div className="relative w-40 h-40 rounded-full border-4 border-dashed border-primary/50 flex items-center justify-center my-2">
-              <div
-                className="absolute left-0 right-0 h-0.5 bg-primary/80 shadow-soft animate-scan rounded-full"
-                style={{ top: "10%" }}
-              />
-              <Camera className="w-12 h-12 text-primary" />
+      {/* Habits */}
+      <div className="px-5 mt-8">
+        <SectionTitle hint="기록하면 달력에 자동으로 남아요">오늘의 생활 습관</SectionTitle>
+        <div className="grid grid-cols-2 gap-3">
+          <Card className="p-4">
+            <div className="flex items-center gap-1.5 text-[13px] text-muted-foreground">
+              <Droplet className="w-4 h-4 text-sky-500" strokeWidth={1.75} /> 물
             </div>
-            <p className="text-xs text-muted-foreground text-center mt-3">
-              패치를 부착한 부위를 원 안에 맞춰주세요
-            </p>
+            <div className="mt-2 text-[26px] font-bold tabular-nums tracking-[-0.03em]">
+              {habit.water}
+              <span className="text-[14px] font-medium text-muted-foreground">
+                {" "}
+                / {WATER_GOAL}잔
+              </span>
+            </div>
+            <div className="mt-2 h-1 rounded-full bg-surface overflow-hidden">
+              <div
+                className="h-full bg-sky-400 transition-all"
+                style={{ width: `${Math.min(100, (habit.water / WATER_GOAL) * 100)}%` }}
+              />
+            </div>
             <button
-              onClick={() => go("analysis")}
-              className="mt-4 px-6 py-3 rounded-full bg-primary text-primary-foreground font-bold text-sm shadow-soft active:scale-95 transition flex items-center gap-2"
+              onClick={addWater}
+              className="mt-3 w-full h-9 rounded-[10px] bg-surface text-[13px] font-medium flex items-center justify-center gap-1 active:scale-95 transition"
             >
-              <Sparkles className="w-4 h-4" /> 분석 시작하기
+              <Plus className="w-3.5 h-3.5" /> 한 잔
             </button>
-          </div>
+          </Card>
+          <Card className="p-4">
+            <div className="flex items-center gap-1.5 text-[13px] text-muted-foreground">
+              <Moon className="w-4 h-4 text-indigo-500" strokeWidth={1.75} /> 수면
+            </div>
+            <div className="mt-2 text-[26px] font-bold tabular-nums tracking-[-0.03em]">
+              {habit.sleep}
+              <span className="text-[14px] font-medium text-muted-foreground"> 시간</span>
+            </div>
+            <div className="mt-2 h-1 rounded-full bg-surface overflow-hidden">
+              <div
+                className="h-full bg-indigo-400 transition-all"
+                style={{ width: `${Math.min(100, (habit.sleep / 8) * 100)}%` }}
+              />
+            </div>
+            <div className="mt-3 grid grid-cols-2 gap-1.5">
+              <button
+                onClick={() => setSleep(habit.sleep - 1)}
+                aria-label="수면 1시간 빼기"
+                className="h-9 rounded-[10px] bg-surface flex items-center justify-center active:scale-95 transition"
+              >
+                <Minus className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={() => setSleep(habit.sleep + 1)}
+                aria-label="수면 1시간 더하기"
+                className="h-9 rounded-[10px] bg-surface flex items-center justify-center active:scale-95 transition"
+              >
+                <Plus className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </Card>
         </div>
+
+        <button
+          onClick={() => go("addDiary")}
+          className="mt-3 w-full flex items-center gap-3 rounded-[20px] border border-border bg-card p-4 text-left active:bg-surface transition"
+        >
+          <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center">
+            <PenLine className="w-[18px] h-[18px] text-primary" strokeWidth={1.75} />
+          </div>
+          <div className="flex-1">
+            <div className="text-[15px] font-semibold">오늘 피부 기록하기</div>
+            <div className="text-[13px] text-muted-foreground">사진 · 사용 제품 · 메모</div>
+          </div>
+          <ChevronRight className="w-5 h-5 text-muted-foreground" strokeWidth={1.75} />
+        </button>
       </div>
 
-      {/* Features grid */}
-      <div className="px-5 mt-6">
-        <h3 className="text-sm font-bold mb-3 px-1">바로가기</h3>
-        <div className="flex gap-3 overflow-x-auto scrollbar-hide -mx-5 px-5 pb-2">
-          {features.map((f) => (
+      {/* Menu */}
+      <div className="px-5 mt-8">
+        <SectionTitle>바로가기</SectionTitle>
+        <Card className="divide-y divide-border overflow-hidden">
+          {menu.map((m) => (
             <button
-              key={f.label}
-              onClick={() => go(f.to)}
-              className={`shrink-0 w-24 aspect-square rounded-2xl bg-gradient-to-br ${f.color} text-white p-3 flex flex-col items-start justify-between shadow-card active:scale-95 transition animate-fade-in-up`}
+              key={m.label}
+              onClick={() => go(m.to)}
+              className="w-full flex items-center gap-3.5 px-4 h-[64px] text-left active:bg-surface transition"
             >
-              <f.icon className="w-5 h-5" />
-              <span className="font-bold text-xs text-left">{f.label}</span>
+              <m.icon className="w-5 h-5 text-foreground/70" strokeWidth={1.6} />
+              <div className="flex-1">
+                <div className="text-[15px] font-medium">{m.label}</div>
+                <div className="text-[12px] text-muted-foreground">{m.desc}</div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-muted-foreground" strokeWidth={1.75} />
             </button>
           ))}
-        </div>
+        </Card>
       </div>
     </div>
+  );
+}
+
+function Tag({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="h-7 px-2.5 rounded-full bg-surface text-[12px] font-medium text-secondary-foreground inline-flex items-center">
+      {children}
+    </span>
   );
 }

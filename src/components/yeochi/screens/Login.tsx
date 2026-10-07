@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useApp, fetchCurrentUser, signInUser } from "@/lib/yeochi-store";
+import { PrimaryButton, inputClass } from "@/components/yeochi/ui";
 
 export function LoginScreen() {
   const { setUser, go } = useApp();
@@ -27,59 +28,74 @@ export function LoginScreen() {
   };
 
   return (
-    <div className="min-h-full flex flex-col px-7 py-12 animate-fade-in-up">
-      <div className="text-center mt-8 mb-12">
-        <h1 className="text-3xl font-extrabold tracking-tight text-foreground">여치들</h1>
-        <p className="text-sm text-muted-foreground mt-2">스마트한 여드름 분석 파트너</p>
+    <div className="min-h-full flex flex-col px-6 pt-16 pb-8 animate-fade-in-up">
+      <div className="mb-12">
+        <div className="w-11 h-11 rounded-[14px] bg-primary flex items-center justify-center mb-6">
+          <span className="text-primary-foreground text-[20px] font-extrabold tracking-[-0.05em]">
+            여
+          </span>
+        </div>
+        <h1 className="text-[28px] leading-[1.3] font-bold tracking-[-0.04em]">
+          피부 기록을
+          <br />
+          가장 쉽게, 여치들
+        </h1>
+        <p className="text-[15px] text-muted-foreground mt-3">
+          패치로 측정하고 나에게 맞는 케어를 찾아요
+        </p>
       </div>
 
-      <div className="space-y-3">
+      <form
+        className="space-y-3"
+        onSubmit={(e) => {
+          e.preventDefault();
+          submit();
+        }}
+      >
         <input
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="이메일"
-          className="w-full px-5 py-4 rounded-2xl bg-secondary border border-transparent focus:border-primary focus:outline-none transition text-sm"
+          type="email"
+          autoComplete="email"
+          className={inputClass}
         />
         <input
           type="password"
           value={pw}
           onChange={(e) => setPw(e.target.value)}
           placeholder="비밀번호"
-          className="w-full px-5 py-4 rounded-2xl bg-secondary border border-transparent focus:border-primary focus:outline-none transition text-sm"
+          autoComplete="current-password"
+          className={inputClass}
         />
-        {err && <p className="text-xs text-destructive px-2">{err}</p>}
+        {err && <p className="text-[13px] text-destructive px-1">{err}</p>}
 
-        <button
-          onClick={submit}
-          disabled={loading}
-          className="w-full py-4 rounded-2xl bg-primary text-primary-foreground font-bold shadow-soft active:scale-95 transition hover:opacity-95 disabled:opacity-60"
-        >
+        <PrimaryButton type="submit" disabled={loading} className="!mt-5">
           {loading ? "로그인 중..." : "로그인"}
-        </button>
-      </div>
+        </PrimaryButton>
+      </form>
 
-      <div className="flex items-center justify-center gap-4 mt-6 text-xs text-muted-foreground">
-        <button onClick={() => go("signup")} className="hover:text-primary transition">
+      <div className="flex items-center justify-center gap-3 mt-5 text-[14px] text-muted-foreground">
+        <button onClick={() => go("signup")} className="font-medium text-foreground">
           회원가입
         </button>
-        <span>·</span>
-        <button onClick={() => setFindPw(true)} className="hover:text-primary transition">
-          비밀번호 찾기
-        </button>
+        <span className="w-px h-3 bg-border" />
+        <button onClick={() => setFindPw(true)}>비밀번호 찾기</button>
       </div>
 
       {findPw && (
-        <div className="mt-4 p-4 rounded-2xl bg-accent/50 text-xs text-accent-foreground animate-fade-in-up">
-          가입하신 이메일로 임시 비밀번호가 발송됩니다. (데모)
-          <button onClick={() => setFindPw(false)} className="ml-2 underline">
+        <div className="mt-4 p-4 rounded-[14px] bg-surface text-[13px] text-secondary-foreground animate-fade-in-up flex items-start justify-between gap-3">
+          <span>가입하신 이메일로 임시 비밀번호가 발송됩니다. (데모)</span>
+          <button
+            onClick={() => setFindPw(false)}
+            className="shrink-0 underline underline-offset-2"
+          >
             닫기
           </button>
         </div>
       )}
 
-      <div className="mt-auto pt-12 text-center text-[10px] text-muted-foreground/60">
-        © 여치들 · 여드름은 더 이상 고민이 아니에요
-      </div>
+      <div className="mt-auto pt-12 text-center text-[12px] text-muted-foreground/70">© 여치들</div>
     </div>
   );
 }

@@ -9,7 +9,8 @@ import {
 import { uploadUserPhoto } from "@/lib/supabase";
 import { COLOR_PRESETS, SKIN_TYPES } from "@/lib/yeochi-data";
 import { Header } from "@/components/yeochi/Header";
-import { LogOut, UserX, Upload, User } from "lucide-react";
+import { Card, PrimaryButton, SectionTitle } from "@/components/yeochi/ui";
+import { Camera, User, ChevronRight } from "lucide-react";
 
 export function MyPageScreen() {
   const { user, setUser, go } = useApp();
@@ -79,18 +80,18 @@ export function MyPageScreen() {
   return (
     <>
       <Header title="마이페이지" />
-      <div className="p-5 space-y-4 animate-fade-in-up pb-12">
-        <div className="bg-card rounded-3xl p-5 shadow-card border border-border/50 flex flex-col items-center">
-          <label className="relative cursor-pointer">
-            <div className="w-24 h-24 rounded-full overflow-hidden gradient-warm flex items-center justify-center text-3xl text-white ring-4 ring-primary/20">
+      <div className="px-5 pt-2 pb-12 animate-fade-in-up">
+        <div className="flex items-center gap-4 px-1">
+          <label className="relative cursor-pointer shrink-0">
+            <div className="w-[72px] h-[72px] rounded-full overflow-hidden bg-surface flex items-center justify-center">
               {user.profilePic ? (
-                <img src={user.profilePic} alt="me" className="w-full h-full object-cover" />
+                <img src={user.profilePic} alt="" className="w-full h-full object-cover" />
               ) : (
-                <User className="w-10 h-10" />
+                <User className="w-8 h-8 text-muted-foreground" strokeWidth={1.5} />
               )}
             </div>
-            <div className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-soft">
-              <Upload className="w-4 h-4" />
+            <div className="absolute -bottom-0.5 -right-0.5 w-7 h-7 rounded-full bg-card border border-border flex items-center justify-center">
+              <Camera className="w-3.5 h-3.5" strokeWidth={1.75} />
             </div>
             <input
               type="file"
@@ -99,145 +100,147 @@ export function MyPageScreen() {
               onChange={(e) => onPic(e.target.files?.[0] || null)}
             />
           </label>
-          <div className="font-bold mt-3">{user.name}</div>
-          <div className="text-xs text-muted-foreground">{user.email}</div>
-          {uploadingPic && (
-            <div className="text-[10px] text-muted-foreground mt-1">사진 업로드 중...</div>
-          )}
+          <div className="min-w-0">
+            <div className="text-[20px] font-bold tracking-[-0.03em]">{user.name}</div>
+            <div className="text-[14px] text-muted-foreground truncate">{user.email}</div>
+            {uploadingPic && (
+              <div className="text-[12px] text-muted-foreground mt-0.5">사진 업로드 중...</div>
+            )}
+          </div>
         </div>
 
-        <Section title="개인 정보">
-          <Row label="이름">
-            <input value={name} onChange={(e) => setName(e.target.value)} className="input" />
-          </Row>
-          <Row label="이메일">
-            <input value={user.email} disabled className="input opacity-60" />
-          </Row>
-          <Row label="나이">
-            <input
-              type="number"
-              value={age}
-              onChange={(e) => setAge(+e.target.value)}
-              className="input"
-            />
-          </Row>
-          <Row label="성별">
-            <select value={gender} onChange={(e) => setGender(e.target.value)} className="input">
-              {["여성", "남성", "기타"].map((g) => (
-                <option key={g}>{g}</option>
-              ))}
-            </select>
-          </Row>
-          <Row label="키 (cm)">
-            <input
-              type="number"
-              value={height}
-              onChange={(e) => setHeight(+e.target.value)}
-              className="input"
-            />
-          </Row>
-          <Row label="몸무게 (kg)">
-            <input
-              type="number"
-              value={weight}
-              onChange={(e) => setWeight(+e.target.value)}
-              className="input"
-            />
-          </Row>
-          <Row label="피부 타입">
-            <select
-              value={skinType}
-              onChange={(e) => setSkinType(e.target.value)}
-              className="input"
-            >
-              {SKIN_TYPES.map((s) => (
-                <option key={s}>{s}</option>
-              ))}
-            </select>
-          </Row>
-        </Section>
+        <div className="mt-8">
+          <SectionTitle>내 정보</SectionTitle>
+          <Card className="divide-y divide-border overflow-hidden">
+            <Row label="이름">
+              <input value={name} onChange={(e) => setName(e.target.value)} className="row-input" />
+            </Row>
+            <Row label="나이">
+              <input
+                type="number"
+                value={age}
+                onChange={(e) => setAge(+e.target.value)}
+                className="row-input tabular-nums"
+              />
+            </Row>
+            <Row label="성별">
+              <select
+                value={gender}
+                onChange={(e) => setGender(e.target.value)}
+                className="row-input"
+              >
+                {["여성", "남성", "기타"].map((g) => (
+                  <option key={g}>{g}</option>
+                ))}
+              </select>
+            </Row>
+            <Row label="키 (cm)">
+              <input
+                type="number"
+                value={height}
+                onChange={(e) => setHeight(+e.target.value)}
+                className="row-input tabular-nums"
+              />
+            </Row>
+            <Row label="몸무게 (kg)">
+              <input
+                type="number"
+                value={weight}
+                onChange={(e) => setWeight(+e.target.value)}
+                className="row-input tabular-nums"
+              />
+            </Row>
+            <Row label="피부 타입">
+              <select
+                value={skinType}
+                onChange={(e) => setSkinType(e.target.value)}
+                className="row-input"
+              >
+                {SKIN_TYPES.map((s) => (
+                  <option key={s}>{s}</option>
+                ))}
+              </select>
+            </Row>
+          </Card>
+        </div>
 
-        <Section title="테마 컬러">
-          <div className="flex gap-2 flex-wrap">
+        <div className="mt-8">
+          <SectionTitle>테마 컬러</SectionTitle>
+          <Card className="p-4 flex gap-3 items-center">
             {COLOR_PRESETS.map((c) => (
               <button
                 key={c}
                 onClick={() => setColor(c)}
+                aria-label={`테마 컬러 ${c}`}
                 style={{ background: c }}
-                className={`w-10 h-10 rounded-2xl transition active:scale-90 ${color === c ? "ring-4 ring-offset-2 ring-foreground/30" : ""}`}
+                className={`w-9 h-9 rounded-full transition active:scale-90 ${color === c ? "ring-2 ring-offset-2 ring-offset-card ring-foreground" : ""}`}
               />
             ))}
-            <input
-              type="color"
-              value={color}
-              onChange={(e) => setColor(e.target.value)}
-              className="w-10 h-10 rounded-2xl cursor-pointer"
-            />
-          </div>
-        </Section>
+            <label className="w-9 h-9 rounded-full border border-dashed border-border flex items-center justify-center text-muted-foreground text-[18px] cursor-pointer relative overflow-hidden">
+              +
+              <input
+                type="color"
+                value={color}
+                onChange={(e) => setColor(e.target.value)}
+                className="absolute inset-0 opacity-0 cursor-pointer"
+              />
+            </label>
+          </Card>
+        </div>
 
-        <button
-          onClick={save}
-          disabled={saving}
-          className="w-full py-3.5 rounded-2xl bg-primary text-primary-foreground font-bold shadow-soft active:scale-95 transition disabled:opacity-60"
-        >
-          {saving ? "저장 중..." : saved ? "저장 완료!" : "변경사항 저장"}
-        </button>
+        <PrimaryButton onClick={save} disabled={saving} className="mt-6">
+          {saving ? "저장 중..." : saved ? "저장했어요" : "변경사항 저장"}
+        </PrimaryButton>
 
-        <div className="grid grid-cols-2 gap-2 pt-2">
+        <Card className="mt-8 divide-y divide-border overflow-hidden">
           <button
             onClick={logout}
-            className="py-3 rounded-2xl bg-secondary text-secondary-foreground font-semibold text-sm flex items-center justify-center gap-2 active:scale-95 transition"
+            className="w-full h-14 px-4 flex items-center justify-between text-[15px] active:bg-surface transition"
           >
-            <LogOut className="w-4 h-4" /> 로그아웃
+            로그아웃
+            <ChevronRight className="w-4 h-4 text-muted-foreground" />
           </button>
           <button
             onClick={() => setConfirmDel(true)}
-            className="py-3 rounded-2xl bg-destructive/10 text-destructive font-semibold text-sm flex items-center justify-center gap-2 active:scale-95 transition"
+            className="w-full h-14 px-4 flex items-center justify-between text-[15px] text-muted-foreground active:bg-surface transition"
           >
-            <UserX className="w-4 h-4" /> 회원 탈퇴
+            회원 탈퇴
+            <ChevronRight className="w-4 h-4 text-muted-foreground" />
           </button>
-        </div>
+        </Card>
 
         {confirmDel && (
-          <div className="bg-destructive/5 border border-destructive/30 rounded-2xl p-4 animate-fade-in-up">
-            <div className="text-xs font-semibold text-destructive mb-2">
-              정말 탈퇴하시겠어요? 모든 기록이 삭제됩니다.
+          <Card className="mt-3 p-4 animate-fade-in-up">
+            <div className="text-[15px] font-semibold">정말 탈퇴하시겠어요?</div>
+            <div className="text-[14px] text-muted-foreground mt-1">
+              모든 기록이 삭제되고 되돌릴 수 없어요.
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 mt-4">
               <button
                 onClick={() => setConfirmDel(false)}
-                className="flex-1 py-2 rounded-xl bg-secondary text-xs font-semibold"
+                className="flex-1 h-11 rounded-[12px] bg-surface text-[14px] font-medium"
               >
                 취소
               </button>
               <button
                 onClick={remove}
-                className="flex-1 py-2 rounded-xl bg-destructive text-white text-xs font-semibold"
+                className="flex-1 h-11 rounded-[12px] bg-destructive text-white text-[14px] font-medium"
               >
                 탈퇴하기
               </button>
             </div>
-          </div>
+          </Card>
         )}
       </div>
-      <style>{`.input{width:100%;padding:8px 12px;border-radius:10px;background:var(--secondary);font-size:13px;outline:none}.input:focus{box-shadow:0 0 0 2px var(--primary)}`}</style>
+      <style>{`.row-input{width:100%;text-align:right;background:transparent;font-size:15px;outline:none;padding:0;appearance:none}.row-input:focus{color:var(--primary)}`}</style>
     </>
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="bg-card rounded-2xl p-4 shadow-card border border-border/50 space-y-2.5">
-      <h3 className="text-sm font-bold">{title}</h3>
-      {children}
-    </div>
-  );
-}
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex items-center gap-3">
-      <span className="text-xs text-muted-foreground w-20 shrink-0">{label}</span>
+    <div className="flex items-center gap-3 px-4 h-14">
+      <span className="text-[15px] text-muted-foreground w-24 shrink-0">{label}</span>
       <div className="flex-1">{children}</div>
     </div>
   );

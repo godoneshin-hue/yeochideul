@@ -1,81 +1,140 @@
 import { useState } from "react";
 import { useApp } from "@/lib/yeochi-store";
 import { Header } from "@/components/yeochi/Header";
-import { PRODUCT_DB, CATEGORIES, Product } from "@/lib/yeochi-data";
-import { Star, ChevronDown } from "lucide-react";
+import { ProductThumb } from "@/components/yeochi/ProductThumb";
+import { Card, Chip, Divider } from "@/components/yeochi/ui";
+import { PRODUCT_DB, CATEGORIES, Product, oliveYoungUrl } from "@/lib/yeochi-data";
+import { Star, ChevronDown, ArrowUpRight } from "lucide-react";
 
 export function RecommendationScreen() {
   const { user } = useApp();
-  const [cat, setCat] = useState<typeof CATEGORIES[number]>("토너");
+  const [cat, setCat] = useState<(typeof CATEGORIES)[number]>("토너");
   const [open, setOpen] = useState<string | null>(null);
 
   return (
     <>
-      <Header title="제품추천" />
-      <div className="px-5 pt-4 pb-8 animate-fade-in-up">
-        <div className="bg-card rounded-2xl p-4 shadow-card border border-border/50 mb-4">
-          <div className="text-[11px] text-muted-foreground">{user.skinType} 피부 · {user.concern}</div>
-          <div className="text-sm font-bold mt-0.5">{user.name}님 맞춤 추천</div>
+      <Header title="제품 추천" />
+      <div className="px-5 pt-2 pb-10 animate-fade-in-up">
+        <div className="px-1 mb-5">
+          <div className="text-[13px] text-muted-foreground">
+            {user.skinType} 피부 · {user.concern}
+          </div>
+          <h2 className="text-[22px] leading-[1.35] font-bold tracking-[-0.03em] mt-1">
+            {user.name}님 피부에
+            <br />
+            맞춘 제품이에요
+          </h2>
         </div>
 
-        <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-5 px-5 mb-4">
-          {CATEGORIES.map((c) => (
-            <button key={c} onClick={() => setCat(c)}
-              className={`shrink-0 px-5 py-2 rounded-full text-sm font-semibold transition active:scale-95
-              ${cat === c ? "bg-primary text-primary-foreground shadow-soft" : "bg-secondary text-secondary-foreground"}`}>
-              {c}
-            </button>
+        <div className="sticky top-14 z-30 -mx-5 px-5 py-2 bg-background">
+          <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+            {CATEGORIES.map((c) => (
+              <Chip key={c} active={cat === c} onClick={() => setCat(c)}>
+                {c}
+              </Chip>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-3 mt-3">
+          {PRODUCT_DB[cat].map((p, i) => (
+            <ProductCard
+              key={p.name}
+              p={p}
+              rank={i + 1}
+              category={cat}
+              open={open === p.name}
+              toggle={() => setOpen(open === p.name ? null : p.name)}
+            />
           ))}
         </div>
 
-        <div className="space-y-3">
-          {PRODUCT_DB[cat].map((p) => (
-            <ProductCard key={p.name} p={p} open={open === p.name} toggle={() => setOpen(open === p.name ? null : p.name)} />
-          ))}
-        </div>
+        <p className="text-[12px] text-muted-foreground/80 text-center mt-6 leading-relaxed">
+          가격과 재고는 올리브영 기준으로 달라질 수 있어요.
+        </p>
       </div>
     </>
   );
 }
 
-function ProductCard({ p, open, toggle }: { p: Product; open: boolean; toggle: () => void }) {
+function ProductCard({
+  p,
+  rank,
+  category,
+  open,
+  toggle,
+}: {
+  p: Product;
+  rank: number;
+  category: string;
+  open: boolean;
+  toggle: () => void;
+}) {
   return (
-    <div className="bg-card rounded-2xl shadow-card border border-border/50 overflow-hidden animate-fade-in-up">
-      <button onClick={toggle} className="w-full p-4 flex items-center gap-3 text-left active:bg-secondary/40 transition">
-        <div className="w-14 h-14 rounded-xl gradient-warm flex items-center justify-center text-2xl text-white shrink-0">
-          {p.brand[0]}
+    <Card className="overflow-hidden">
+      <button onClick={toggle} className="w-full p-4 flex items-center gap-4 text-left">
+        <div className="relative">
+          <ProductThumb product={p} category={category} size={76} />
+          <span className="absolute -top-1.5 -left-1.5 w-6 h-6 rounded-full bg-foreground text-background text-[12px] font-semibold flex items-center justify-center tabular-nums">
+            {rank}
+          </span>
         </div>
         <div className="flex-1 min-w-0">
-          <div className="text-[10px] text-muted-foreground">{p.brand}</div>
-          <div className="font-bold text-sm truncate">{p.name}</div>
-          <div className="flex items-center gap-2 mt-1">
-            <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-            <span className="text-xs font-semibold">{p.score}</span>
-            <span className="text-xs text-primary font-bold ml-auto">{p.price}</span>
+          <div className="text-[13px] text-muted-foreground">{p.brand}</div>
+          <div className="text-[15px] font-semibold leading-snug tracking-[-0.02em] line-clamp-2">
+            {p.name}
+          </div>
+          <div className="flex items-center gap-2 mt-1.5 text-[13px]">
+            <span className="flex items-center gap-0.5 font-medium">
+              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+              {p.score}
+            </span>
+            <span className="w-px h-3 bg-border" />
+            <span className="font-semibold tabular-nums">{p.price}</span>
           </div>
         </div>
-        <ChevronDown className={`w-4 h-4 text-muted-foreground transition ${open ? "rotate-180" : ""}`} />
+        <ChevronDown
+          className={`w-5 h-5 text-muted-foreground shrink-0 transition ${open ? "rotate-180" : ""}`}
+          strokeWidth={1.75}
+        />
       </button>
+
       {open && (
-        <div className="px-4 pb-4 space-y-3 animate-fade-in-up">
-          <div className="bg-secondary/40 rounded-xl p-3">
-            <div className="text-[10px] text-muted-foreground mb-1">주요 성분</div>
-            <div className="text-xs">{p.ingredients}</div>
-          </div>
-          <div className="bg-secondary/40 rounded-xl p-3">
-            <div className="text-[10px] text-muted-foreground mb-1">기대 효과</div>
-            <div className="text-xs">{p.effect}</div>
-          </div>
-          <div>
-            <div className="text-[10px] text-muted-foreground mb-1.5 px-1">리뷰</div>
-            <div className="space-y-1.5">
+        <div className="px-4 pb-4 animate-fade-in-up">
+          <dl className="grid grid-cols-[64px_1fr] gap-y-2.5 text-[14px] bg-surface rounded-[14px] p-4">
+            <dt className="text-muted-foreground">주요 성분</dt>
+            <dd>{p.ingredients}</dd>
+            <dt className="text-muted-foreground">기대 효과</dt>
+            <dd>{p.effect}</dd>
+          </dl>
+          <div className="mt-4">
+            <div className="text-[13px] text-muted-foreground mb-2 px-0.5">사용자 리뷰</div>
+            <ul className="space-y-2">
               {p.reviews.map((r, i) => (
-                <div key={i} className="text-xs bg-accent/40 rounded-lg px-3 py-2">"{r}"</div>
+                <li key={i} className="text-[14px] pl-3 border-l-2 border-primary/40">
+                  {r}
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
         </div>
       )}
-    </div>
+
+      <Divider />
+      <a
+        href={oliveYoungUrl(p)}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center justify-between px-4 h-12 text-[14px] font-medium active:bg-surface transition"
+      >
+        <span className="flex items-center gap-2">
+          <span className="w-5 h-5 rounded-full bg-[#9bce26] text-white text-[10px] font-bold flex items-center justify-center">
+            O
+          </span>
+          올리브영에서 보기
+        </span>
+        <ArrowUpRight className="w-4 h-4 text-muted-foreground" strokeWidth={1.75} />
+      </a>
+    </Card>
   );
 }

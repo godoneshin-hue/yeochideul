@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { useApp, fileToDataUrl } from "@/lib/yeochi-store";
 import { Header } from "@/components/yeochi/Header";
-import { PRODUCT_DB } from "@/lib/yeochi-data";
-import { Camera, Sparkles, Upload, CheckCircle2, Circle, Star } from "lucide-react";
+import { PRODUCT_DB, Product, oliveYoungUrl } from "@/lib/yeochi-data";
+import { ProductThumb } from "@/components/yeochi/ProductThumb";
+import { Card, PrimaryButton, SecondaryButton, SectionTitle } from "@/components/yeochi/ui";
+import { Camera, Check, Star, ArrowUpRight } from "lucide-react";
 
 const SKIN_TYPES = ["건성", "복합성", "지성", "민감성"] as const;
 const ACNE_TYPES = [
@@ -25,32 +27,56 @@ export function AnalysisScreen() {
   const [img, setImg] = useState<string | undefined>();
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<null | {
-    score: number; redness: number; moisture: number;
-    skinType: string; acne: { type: string; desc: string };
-    picks: { cat: string; product: any; reason: string }[];
+    score: number;
+    redness: number;
+    moisture: number;
+    skinType: string;
+    acne: { type: string; desc: string };
+    picks: { cat: string; product: Product; reason: string }[];
   }>(null);
   const [done, setDone] = useState<boolean[]>(Array(ROUTINES.length).fill(false));
 
   const onFile = async (f: File | null) => {
     if (!f) return;
     const u = await fileToDataUrl(f);
-    setImg(u); setResult(null); setLoading(true);
+    setImg(u);
+    setResult(null);
+    setLoading(true);
     setTimeout(() => {
-      const skinType = user.skinType && SKIN_TYPES.includes(user.skinType as any)
-        ? user.skinType
-        : SKIN_TYPES[Math.floor(Math.random() * SKIN_TYPES.length)];
+      const skinType =
+        user.skinType && (SKIN_TYPES as readonly string[]).includes(user.skinType)
+          ? user.skinType
+          : SKIN_TYPES[Math.floor(Math.random() * SKIN_TYPES.length)];
       const acne = ACNE_TYPES[Math.floor(Math.random() * ACNE_TYPES.length)];
       const picks = [
-        { cat: "클렌징", product: PRODUCT_DB["클렌징"][2], reason: `${skinType} 피부의 ${acne.type}에는 자극 없는 약산성 세안이 필수예요.` },
-        { cat: "토너", product: PRODUCT_DB["토너"][0], reason: "어성초가 염증을 가라앉히고 유수분 밸런스를 잡아줘요." },
-        { cat: "앰플", product: PRODUCT_DB["앰플"][0], reason: "병풀 100%로 붉은기와 트러블을 빠르게 진정시켜요." },
-        { cat: "크림", product: PRODUCT_DB["크림"][0], reason: "수딩 크림으로 마무리해 장벽을 회복시켜 줘요." },
+        {
+          cat: "클렌징",
+          product: PRODUCT_DB["클렌징"][2],
+          reason: `${skinType} 피부의 ${acne.type}에는 자극 없는 약산성 세안이 필수예요.`,
+        },
+        {
+          cat: "토너",
+          product: PRODUCT_DB["토너"][0],
+          reason: "어성초가 염증을 가라앉히고 유수분 밸런스를 잡아줘요.",
+        },
+        {
+          cat: "앰플",
+          product: PRODUCT_DB["앰플"][0],
+          reason: "병풀 100%로 붉은기와 트러블을 빠르게 진정시켜요.",
+        },
+        {
+          cat: "크림",
+          product: PRODUCT_DB["크림"][0],
+          reason: "수딩 크림으로 마무리해 장벽을 회복시켜 줘요.",
+        },
       ];
       setResult({
         score: 80 + Math.floor(Math.random() * 18),
         redness: 10 + Math.floor(Math.random() * 20),
         moisture: 50 + Math.floor(Math.random() * 30),
-        skinType, acne, picks,
+        skinType,
+        acne,
+        picks,
       });
       setLoading(false);
     }, 2200);
@@ -58,111 +84,166 @@ export function AnalysisScreen() {
 
   return (
     <>
-      <Header title="AI 패치 분석" />
-      <div className="p-5 animate-fade-in-up">
-        <div className="bg-card rounded-2xl p-4 shadow-card border border-border/50 mb-4">
-          <div className="text-xs font-bold mb-2">스캔 가이드</div>
-          <ul className="text-[11px] text-muted-foreground space-y-1">
-            <li>1. 밝은 곳에서 촬영해주세요</li>
-            <li>2. 패치가 정중앙에 오도록 맞춰주세요</li>
-            <li>3. 흔들리지 않게 주의해주세요</li>
-          </ul>
-        </div>
+      <Header title="패치 분석" />
+      <div className="px-5 pt-2 pb-10 animate-fade-in-up">
+        {!result && (
+          <div className="px-1 mb-5">
+            <h2 className="text-[22px] leading-[1.35] font-bold tracking-[-0.03em]">
+              패치 부위를
+              <br />
+              가운데에 맞춰 찍어주세요
+            </h2>
+            <ol className="mt-3 space-y-1 text-[14px] text-muted-foreground">
+              <li>· 밝은 곳에서 촬영해주세요</li>
+              <li>· 패치가 화면 정중앙에 오도록 맞춰주세요</li>
+              <li>· 흔들리지 않게 잠시 멈춰주세요</li>
+            </ol>
+          </div>
+        )}
 
-        <label className="block bg-card rounded-3xl p-6 shadow-card border-2 border-dashed border-primary/40 active:scale-98 transition">
-          <input type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => onFile(e.target.files?.[0] || null)} />
+        <label className="block cursor-pointer">
+          <input
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="hidden"
+            onChange={(e) => onFile(e.target.files?.[0] || null)}
+          />
           {img ? (
             <div className="relative">
-              <img src={img} className="w-full aspect-square object-cover rounded-2xl" alt="scan" />
+              <img src={img} className="w-full aspect-square object-cover rounded-[20px]" alt="" />
               {loading && (
-                <div className="absolute inset-0 rounded-2xl bg-black/40 flex flex-col items-center justify-center text-white gap-3">
-                  <div className="w-12 h-12 rounded-full border-4 border-white/30 border-t-white animate-spin" />
-                  <div className="text-xs">AI가 패치 부위를 분석 중...</div>
+                <div className="absolute inset-0 rounded-[20px] bg-black/45 flex flex-col items-center justify-center text-white gap-3">
+                  <div className="w-10 h-10 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                  <div className="text-[14px]">피부 상태를 분석하고 있어요</div>
                 </div>
               )}
             </div>
           ) : (
-            <div className="aspect-square flex flex-col items-center justify-center text-muted-foreground gap-3">
-              <div className="w-20 h-20 rounded-full bg-primary/15 flex items-center justify-center">
-                <Camera className="w-10 h-10 text-primary" />
+            <div className="aspect-square rounded-[20px] bg-surface relative flex flex-col items-center justify-center gap-3 text-muted-foreground">
+              {/* viewfinder corners */}
+              <span className="absolute top-6 left-6 w-8 h-8 border-t-2 border-l-2 border-foreground/30 rounded-tl-lg" />
+              <span className="absolute top-6 right-6 w-8 h-8 border-t-2 border-r-2 border-foreground/30 rounded-tr-lg" />
+              <span className="absolute bottom-6 left-6 w-8 h-8 border-b-2 border-l-2 border-foreground/30 rounded-bl-lg" />
+              <span className="absolute bottom-6 right-6 w-8 h-8 border-b-2 border-r-2 border-foreground/30 rounded-br-lg" />
+              <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center">
+                <Camera className="w-7 h-7 text-primary-foreground" strokeWidth={1.75} />
               </div>
-              <div className="text-sm font-semibold">탭하여 촬영</div>
-              <div className="text-[11px] flex items-center gap-1"><Upload className="w-3 h-3" /> 또는 파일 업로드</div>
+              <div className="text-[15px] font-medium text-foreground">촬영 또는 사진 선택</div>
             </div>
           )}
         </label>
 
         {result && (
           <>
-            <div className="mt-4 bg-card rounded-3xl p-5 shadow-card border border-border/50 animate-fade-in-up">
-              <div className="flex items-center gap-2 mb-3">
-                <Sparkles className="w-4 h-4 text-primary" />
-                <h3 className="font-bold text-sm">AI 분석 리포트</h3>
-              </div>
-              <div className="text-center mb-4">
-                <div className="text-xs text-muted-foreground">오늘의 피부 점수</div>
-                <div className="text-5xl font-extrabold text-primary">{result.score}</div>
-              </div>
-              <div className="grid grid-cols-2 gap-2 mb-4">
-                <div className="bg-secondary/50 rounded-xl p-3">
-                  <div className="text-[10px] text-muted-foreground">피부 타입</div>
-                  <div className="font-bold text-sm">{result.skinType}</div>
+            <Card className="mt-4 p-5 animate-fade-in-up">
+              <div className="flex items-start justify-between">
+                <div>
+                  <div className="text-[13px] text-muted-foreground">오늘의 피부 점수</div>
+                  <div className="text-[44px] leading-none font-bold tracking-[-0.04em] tabular-nums mt-2">
+                    {result.score}
+                    <span className="text-[16px] font-medium text-muted-foreground ml-1">
+                      / 100
+                    </span>
+                  </div>
                 </div>
-                <div className="bg-secondary/50 rounded-xl p-3">
-                  <div className="text-[10px] text-muted-foreground">여드름 유형</div>
-                  <div className="font-bold text-sm">{result.acne.type}</div>
+                <div className="text-right text-[13px] space-y-1 mt-1">
+                  <div>
+                    <span className="text-muted-foreground">타입 </span>
+                    <b className="font-semibold">{result.skinType}</b>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">유형 </span>
+                    <b className="font-semibold">{result.acne.type}</b>
+                  </div>
                 </div>
               </div>
-              <div className="text-[11px] text-muted-foreground bg-accent/40 rounded-xl p-3 mb-4">
+              <p className="text-[14px] text-secondary-foreground mt-4 leading-relaxed">
                 {result.acne.desc}
+              </p>
+              <div className="space-y-4 mt-5 pt-5 border-t border-border">
+                <Metric label="붉은기 감소" value={result.redness} color="bg-rose-400" />
+                <Metric label="수분도" value={result.moisture} color="bg-sky-400" />
               </div>
-              <div className="space-y-3">
-                <Metric label="붉은기 감소" value={result.redness} suffix="%" color="bg-rose-400" />
-                <Metric label="수분도" value={result.moisture} suffix="%" color="bg-sky-400" />
-              </div>
-            </div>
+            </Card>
 
-            <div className="mt-4 bg-card rounded-3xl p-5 shadow-card border border-border/50 animate-fade-in-up">
-              <h3 className="font-bold text-sm mb-3">맞춤 제품 추천</h3>
-              <div className="space-y-3">
+            <div className="mt-8 animate-fade-in-up">
+              <SectionTitle hint="분석 결과에 맞춘 단계별 제품">추천 루틴 제품</SectionTitle>
+              <Card className="divide-y divide-border overflow-hidden">
                 {result.picks.map((p, i) => (
-                  <div key={i} className="bg-secondary/40 rounded-2xl p-3">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/15 text-primary font-semibold">{p.cat}</span>
-                      <span className="text-[10px] text-muted-foreground">{p.product.brand}</span>
-                      <span className="ml-auto text-[10px] flex items-center gap-0.5"><Star className="w-3 h-3 fill-amber-400 text-amber-400" />{p.product.score}</span>
+                  <div key={i} className="p-4">
+                    <div className="flex gap-3.5">
+                      <ProductThumb product={p.product} category={p.cat} size={64} />
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[12px] text-primary font-semibold">
+                          {i + 1}단계 · {p.cat}
+                        </div>
+                        <div className="text-[15px] font-semibold leading-snug mt-0.5">
+                          {p.product.name}
+                        </div>
+                        <div className="text-[13px] text-muted-foreground flex items-center gap-1 mt-0.5">
+                          {p.product.brand}
+                          <span className="mx-1 w-px h-3 bg-border" />
+                          <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                          {p.product.score}
+                        </div>
+                      </div>
                     </div>
-                    <div className="font-bold text-xs mb-1">{p.product.name}</div>
-                    <div className="text-[11px] text-foreground/80 mb-2">{p.reason}</div>
-                    <div className="text-[10px] text-muted-foreground">{p.product.ingredients}</div>
+                    <p className="text-[14px] text-secondary-foreground mt-3 leading-relaxed">
+                      {p.reason}
+                    </p>
+                    <a
+                      href={oliveYoungUrl(p.product)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-3 inline-flex items-center gap-1 text-[13px] font-medium text-foreground/80 underline underline-offset-4 decoration-border"
+                    >
+                      올리브영에서 보기 <ArrowUpRight className="w-3.5 h-3.5" />
+                    </a>
                   </div>
                 ))}
-              </div>
-              <button onClick={() => go("recommendation")} className="w-full mt-3 py-2.5 rounded-xl bg-secondary text-xs font-semibold active:scale-95 transition">
-                더 많은 추천 보기 →
-              </button>
+              </Card>
+              <SecondaryButton onClick={() => go("recommendation")} className="mt-3">
+                추천 제품 더 보기
+              </SecondaryButton>
             </div>
 
-            <div className="mt-4 bg-card rounded-3xl p-5 shadow-card border border-border/50 animate-fade-in-up">
-              <h3 className="font-bold text-sm mb-1">오늘의 케어 루틴</h3>
-              <p className="text-[11px] text-muted-foreground mb-3">{result.skinType} · {result.acne.type} 맞춤</p>
-              <div className="space-y-2">
+            <div className="mt-8 animate-fade-in-up">
+              <SectionTitle
+                hint={`${result.skinType} · ${result.acne.type} 맞춤`}
+                action={
+                  <span className="text-[13px] text-muted-foreground tabular-nums">
+                    {done.filter(Boolean).length}/{ROUTINES.length}
+                  </span>
+                }
+              >
+                오늘의 케어 루틴
+              </SectionTitle>
+              <Card className="divide-y divide-border overflow-hidden">
                 {ROUTINES.map((r, i) => (
-                  <button key={i} onClick={() => setDone((d) => d.map((v, k) => k === i ? !v : v))}
-                    className="w-full flex items-center gap-3 p-3 rounded-xl bg-secondary/40 active:scale-98 transition text-left">
-                    {done[i] ? <CheckCircle2 className="w-5 h-5 text-primary shrink-0" /> : <Circle className="w-5 h-5 text-muted-foreground shrink-0" />}
-                    <span className={`text-xs ${done[i] ? "line-through text-muted-foreground" : "font-semibold"}`}>{r}</span>
+                  <button
+                    key={i}
+                    onClick={() => setDone((d) => d.map((v, k) => (k === i ? !v : v)))}
+                    className="w-full flex items-center gap-3 px-4 h-14 text-left active:bg-surface transition"
+                  >
+                    <span
+                      className={`w-5 h-5 rounded-full shrink-0 flex items-center justify-center border ${done[i] ? "bg-primary border-primary text-primary-foreground" : "border-border"}`}
+                    >
+                      {done[i] && <Check className="w-3 h-3" strokeWidth={3} />}
+                    </span>
+                    <span
+                      className={`text-[15px] ${done[i] ? "line-through text-muted-foreground" : ""}`}
+                    >
+                      {r}
+                    </span>
                   </button>
                 ))}
-              </div>
-              <div className="mt-3 text-[10px] text-muted-foreground text-center">
-                완료: {done.filter(Boolean).length} / {ROUTINES.length}
-              </div>
+              </Card>
             </div>
 
-            <button onClick={() => go("home")} className="w-full mt-4 py-3 rounded-2xl bg-primary text-primary-foreground font-bold text-sm active:scale-95 transition">
-              홈으로 돌아가기
-            </button>
+            <PrimaryButton onClick={() => go("home")} className="mt-8">
+              홈으로
+            </PrimaryButton>
           </>
         )}
       </div>
@@ -170,15 +251,18 @@ export function AnalysisScreen() {
   );
 }
 
-function Metric({ label, value, suffix, color }: { label: string; value: number; suffix: string; color: string }) {
+function Metric({ label, value, color }: { label: string; value: number; color: string }) {
   return (
     <div>
-      <div className="flex justify-between text-xs mb-1">
+      <div className="flex justify-between text-[14px] mb-2">
         <span className="text-muted-foreground">{label}</span>
-        <span className="font-bold">{value}{suffix}</span>
+        <span className="font-semibold tabular-nums">{value}%</span>
       </div>
-      <div className="h-2 bg-secondary rounded-full overflow-hidden">
-        <div className={`h-full ${color} transition-all`} style={{ width: `${value}%` }} />
+      <div className="h-1.5 bg-surface rounded-full overflow-hidden">
+        <div
+          className={`h-full ${color} rounded-full transition-all`}
+          style={{ width: `${value}%` }}
+        />
       </div>
     </div>
   );

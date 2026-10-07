@@ -3,7 +3,8 @@ import { useApp, todayStr, upsertDiaryEntry } from "@/lib/yeochi-store";
 import { uploadUserPhoto } from "@/lib/supabase";
 import { PRODUCT_LIST } from "@/lib/yeochi-data";
 import { Header } from "@/components/yeochi/Header";
-import { Upload, Check } from "lucide-react";
+import { Card, PrimaryButton, inputClass } from "@/components/yeochi/ui";
+import { ImagePlus, Check, Search } from "lucide-react";
 
 export function AddDiaryScreen() {
   const { user, setUser, go } = useApp();
@@ -53,19 +54,19 @@ export function AddDiaryScreen() {
 
   return (
     <>
-      <Header title="여드름 기록 추가" />
-      <div className="p-5 space-y-4 animate-fade-in-up">
+      <Header title="피부 기록" />
+      <div className="px-5 pt-2 pb-10 space-y-3 animate-fade-in-up">
         <Section title="날짜">
           <input
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            className="w-full px-4 py-3 rounded-xl bg-secondary text-sm outline-none focus:ring-2 focus:ring-primary"
+            className={inputClass}
           />
         </Section>
 
         <Section title="피부 사진">
-          <label className="block">
+          <label className="block cursor-pointer">
             <input
               type="file"
               accept="image/*"
@@ -74,17 +75,25 @@ export function AddDiaryScreen() {
               onChange={(e) => onFile(e.target.files?.[0] || null)}
             />
             {img ? (
-              <img src={img} className="w-full aspect-video object-cover rounded-2xl" alt="diary" />
+              <img src={img} className="w-full aspect-[4/3] object-cover rounded-[14px]" alt="" />
             ) : (
-              <div className="w-full aspect-video bg-secondary rounded-2xl flex flex-col items-center justify-center text-muted-foreground gap-2 border-2 border-dashed border-border active:scale-98 transition">
-                <Upload className="w-6 h-6" />
-                <span className="text-xs">{uploading ? "업로드 중..." : "탭하여 사진 추가"}</span>
+              <div className="w-full aspect-[4/3] bg-surface rounded-[14px] flex flex-col items-center justify-center text-muted-foreground gap-2">
+                <ImagePlus className="w-6 h-6" strokeWidth={1.5} />
+                <span className="text-[14px]">{uploading ? "업로드 중..." : "사진 추가"}</span>
               </div>
             )}
           </label>
         </Section>
 
-        <Section title={`피부 점수: ${score}점`}>
+        <Section
+          title="피부 점수"
+          right={
+            <span className="text-[20px] font-bold tabular-nums text-primary">
+              {score}
+              <span className="text-[13px] font-medium text-muted-foreground">점</span>
+            </span>
+          }
+        >
           <input
             type="range"
             min={0}
@@ -93,62 +102,88 @@ export function AddDiaryScreen() {
             onChange={(e) => setScore(+e.target.value)}
             className="w-full accent-[var(--primary)]"
           />
+          <div className="flex justify-between text-[12px] text-muted-foreground mt-1">
+            <span>안 좋음</span>
+            <span>아주 좋음</span>
+          </div>
         </Section>
 
-        <Section title="짧은 메모">
+        <Section title="메모">
           <textarea
             value={desc}
             onChange={(e) => setDesc(e.target.value)}
-            placeholder="오늘 피부 상태는?"
+            placeholder="오늘 피부 상태를 남겨보세요"
             rows={3}
-            className="w-full px-4 py-3 rounded-xl bg-secondary text-sm outline-none focus:ring-2 focus:ring-primary resize-none"
+            className={`${inputClass} h-auto py-3 resize-none leading-relaxed`}
           />
         </Section>
 
-        <Section title="사용한 제품">
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="제품 검색..."
-            className="w-full px-4 py-2.5 rounded-xl bg-secondary text-sm outline-none focus:ring-2 focus:ring-primary mb-2"
-          />
-          <div className="max-h-48 overflow-y-auto space-y-1 scrollbar-hide">
+        <Section
+          title="사용한 제품"
+          right={
+            products.length > 0 ? (
+              <span className="text-[13px] text-primary font-medium">{products.length}개 선택</span>
+            ) : null
+          }
+        >
+          <div className="relative mb-2">
+            <Search className="w-4 h-4 text-muted-foreground absolute left-4 top-1/2 -translate-y-1/2" />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="제품 검색"
+              className={`${inputClass} pl-10`}
+            />
+          </div>
+          <div className="max-h-56 overflow-y-auto scrollbar-hide -mx-1">
             {filtered.map((p) => {
               const on = products.includes(p);
               return (
                 <button
                   key={p}
                   onClick={() => toggle(p)}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between transition active:scale-98 ${on ? "bg-primary/15 text-primary font-semibold" : "bg-secondary/50 hover:bg-secondary"}`}
+                  className="w-full text-left px-1 h-11 text-[14px] flex items-center justify-between gap-3 border-b border-border last:border-0"
                 >
-                  <span className="truncate">{p}</span>
-                  {on && <Check className="w-4 h-4 shrink-0" />}
+                  <span
+                    className={`truncate ${on ? "text-foreground font-medium" : "text-secondary-foreground"}`}
+                  >
+                    {p}
+                  </span>
+                  <span
+                    className={`w-5 h-5 rounded-full shrink-0 flex items-center justify-center border ${on ? "bg-primary border-primary text-primary-foreground" : "border-border"}`}
+                  >
+                    {on && <Check className="w-3 h-3" strokeWidth={3} />}
+                  </span>
                 </button>
               );
             })}
           </div>
-          {products.length > 0 && (
-            <div className="mt-2 text-[11px] text-muted-foreground">{products.length}개 선택됨</div>
-          )}
         </Section>
 
-        <button
-          onClick={save}
-          disabled={saving || uploading}
-          className="w-full py-4 rounded-2xl bg-primary text-primary-foreground font-bold shadow-soft active:scale-95 transition disabled:opacity-60"
-        >
-          {saving ? "저장 중..." : "기록 저장 →"}
-        </button>
+        <PrimaryButton onClick={save} disabled={saving || uploading} className="!mt-6">
+          {saving ? "저장 중..." : "기록 저장"}
+        </PrimaryButton>
       </div>
     </>
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({
+  title,
+  right,
+  children,
+}: {
+  title: string;
+  right?: React.ReactNode;
+  children: React.ReactNode;
+}) {
   return (
-    <div className="bg-card rounded-2xl p-4 shadow-card border border-border/50">
-      <div className="text-xs font-bold mb-2.5">{title}</div>
+    <Card className="p-4">
+      <div className="flex items-center justify-between mb-3">
+        <div className="text-[15px] font-semibold">{title}</div>
+        {right}
+      </div>
       {children}
-    </div>
+    </Card>
   );
 }
