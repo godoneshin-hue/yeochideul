@@ -625,12 +625,6 @@ h3 {
   line-height: 1;
   letter-spacing: -0.06em;
   color: var(--orange);
-  /* extruded numeral */
-  text-shadow:
-    2px 2px 0 var(--orange-deep),
-    4px 4px 0 var(--orange-deep),
-    6px 6px 0 var(--orange-deep),
-    8px 8px 0 var(--orange-deep);
   margin-bottom: 22px;
 }
 
