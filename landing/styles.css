@@ -418,7 +418,8 @@ h3 {
   background: var(--primary-soft);
   color: var(--primary-ink);
   font-weight: 700;
-  font-size: 24px;
+  font-size: 20px;
+  letter-spacing: -0.03em;
   display: flex;
   align-items: center;
   justify-content: center;
