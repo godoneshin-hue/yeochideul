@@ -173,9 +173,67 @@ function profileRowToUser(
   };
 }
 
+// --- Demo login -------------------------------------------------------------
+// One hard-coded account that skips Supabase entirely so the team can open the
+// app even when the backend is unavailable. Its data lives only in this
+// browser's localStorage. Intentionally insecure: the password ships in the
+// client bundle.
+const DEMO_EMAILS = ["juwonshin10@gmail.com", "juwonshin10@gmail"];
+const DEMO_PASSWORD = "Enhypen1130!";
+const DEMO_FLAG_KEY = "yeochi-demo";
+const DEMO_USER_KEY = "yeochi-demo-user";
+export const DEMO_USER_ID = "demo";
+
+function isDemoCredentials(email: string, password: string): boolean {
+  return DEMO_EMAILS.includes(email.trim().toLowerCase()) && password === DEMO_PASSWORD;
+}
+
+function demoActive(): boolean {
+  try {
+    return typeof window !== "undefined" && localStorage.getItem(DEMO_FLAG_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function loadDemoUser(): User {
+  try {
+    const raw = localStorage.getItem(DEMO_USER_KEY);
+    if (raw) return JSON.parse(raw) as User;
+  } catch {
+    // fall through to a fresh demo user
+  }
+  return { ...defaultUser, id: DEMO_USER_ID, name: "주원", email: DEMO_EMAILS[0] };
+}
+
+function saveDemoUser(mutate: (u: User) => User): void {
+  try {
+    localStorage.setItem(DEMO_USER_KEY, JSON.stringify(mutate(loadDemoUser())));
+  } catch {
+    // storage unavailable: demo still works for this page view
+  }
+}
+
+function startDemo(): void {
+  try {
+    localStorage.setItem(DEMO_FLAG_KEY, "1");
+  } catch {
+    // ignore
+  }
+}
+
+function endDemo(): void {
+  try {
+    localStorage.removeItem(DEMO_FLAG_KEY);
+  } catch {
+    // ignore
+  }
+}
+
 // Returns the full app User for the currently authenticated Supabase session,
 // or null if nobody is signed in.
 export async function fetchCurrentUser(): Promise<User | null> {
+  if (demoActive()) return loadDemoUser();
   const {
     data: { session },
   } = await supabase.auth.getSession();
@@ -230,6 +288,11 @@ export async function signUpUser(
   name: string,
   themeColor: string,
 ): Promise<{ hasSession: boolean }> {
+  if (isDemoCredentials(email, password)) {
+    startDemo();
+    saveDemoUser((u) => ({ ...u, name: name || u.name, themeColor }));
+    return { hasSession: true };
+  }
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -249,15 +312,25 @@ export async function signUpUser(
 }
 
 export async function signInUser(email: string, password: string): Promise<void> {
+  if (isDemoCredentials(email, password)) {
+    startDemo();
+    return;
+  }
   const { error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) throw error;
 }
 
 export async function signOutUser(): Promise<void> {
+  if (demoActive()) return endDemo();
   await supabase.auth.signOut();
 }
 
 export async function deleteOwnAccount(): Promise<void> {
+  if (demoActive()) {
+    endDemo();
+    localStorage.removeItem(DEMO_USER_KEY);
+    return;
+  }
   const { error } = await supabase.rpc("delete_own_account");
   if (error) throw error;
   await supabase.auth.signOut();
@@ -285,6 +358,7 @@ type ProfilePatch = Partial<{
 }>;
 
 export async function updateProfile(userId: string, patch: ProfilePatch): Promise<void> {
+  if (userId === DEMO_USER_ID) return saveDemoUser((u) => ({ ...u, ...patch }));
   const row: Record<string, unknown> = {};
   if (patch.name !== undefined) row.name = patch.name;
   if (patch.emoji !== undefined) row.emoji = patch.emoji;
@@ -311,6 +385,9 @@ export async function updateProfile(userId: string, patch: ProfilePatch): Promis
 }
 
 export async function upsertDiaryEntry(userId: string, entry: DiaryRecord): Promise<void> {
+  if (userId === DEMO_USER_ID) {
+    return saveDemoUser((u) => ({ ...u, diary: { ...u.diary, [entry.date]: entry } }));
+  }
   const { error } = await supabase.from("diary_entries").upsert(
     {
       user_id: userId,
@@ -331,6 +408,12 @@ export async function upsertHabit(
   date: string,
   patch: Partial<Pick<HabitRecord, "water" | "sleep">>,
 ): Promise<void> {
+  if (userId === DEMO_USER_ID) {
+    return saveDemoUser((u) => {
+      const prev = u.habits[date] ?? { date, water: 0, sleep: 0 };
+      return { ...u, habits: { ...u.habits, [date]: { ...prev, ...patch } } };
+    });
+  }
   const { data: existing } = await supabase
     .from("habits")
     .select("water, sleep")
@@ -354,6 +437,11 @@ export async function addCosmetic(
   userId: string,
   item: Omit<CosmeticItem, "id">,
 ): Promise<CosmeticItem> {
+  if (userId === DEMO_USER_ID) {
+    const created = { ...item, id: `demo-${Date.now()}` };
+    saveDemoUser((u) => ({ ...u, cosmetics: [...u.cosmetics, created] }));
+    return created;
+  }
   const { data, error } = await supabase
     .from("cosmetics")
     .insert({ user_id: userId, name: item.name, open_date: item.openDate, months: item.months })
@@ -364,6 +452,9 @@ export async function addCosmetic(
 }
 
 export async function deleteCosmetic(id: string): Promise<void> {
+  if (id.startsWith("demo-")) {
+    return saveDemoUser((u) => ({ ...u, cosmetics: u.cosmetics.filter((c) => c.id !== id) }));
+  }
   const { error } = await supabase.from("cosmetics").delete().eq("id", id);
   if (error) throw error;
 }

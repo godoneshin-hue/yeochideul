@@ -17,6 +17,15 @@ export async function uploadUserPhoto(
   file: File,
   folder: "diary" | "profile",
 ): Promise<string> {
+  // Demo account (see yeochi-store): keep the photo in the browser only.
+  if (userId === "demo") {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(file);
+    });
+  }
   const ext = file.name.split(".").pop() || "jpg";
   const path = `${userId}/${folder}/${crypto.randomUUID()}.${ext}`;
   const { error: uploadError } = await supabase.storage
